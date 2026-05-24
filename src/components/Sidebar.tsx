@@ -6,13 +6,13 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'projects', icon: '📁', label: 'Projects' },
-  { id: 'tasks', icon: '✅', label: 'Tasks' },
-  { id: 'chat', icon: '💬', label: 'AI Chat' },
-  { id: 'analytics', icon: '📈', label: 'Analytics' },
-  { id: 'team', icon: '👥', label: 'Team' },
-  { id: 'settings', icon: '⚙️', label: 'Settings' },
+  { id: 'notes', icon: '📝', label: 'Notes' },
+  { id: 'files', icon: '📂', label: 'Files' },
+  { id: 'base', icon: '🏠', label: 'Base' },
+  { id: 'dploy', icon: '🚀', label: 'Deploy' },
+  { id: 'task', icon: '✅', label: 'Task' },
+  { id: 'messaging', icon: '💬', label: 'Messaging' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) => {

@@ -1,5 +1,5 @@
 const OLLAMA_URL = 'http://localhost:11434/api/chat';
-const MODEL = 'llama3.2';
+const MODEL = 'qwen2.5:latest'; // Available models: qwen2.5:latest, llama3.2:1b, deepseek-coder-v2:latest
 
 interface ChatMessage {
   role: string;

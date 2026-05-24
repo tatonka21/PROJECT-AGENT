@@ -43,7 +43,7 @@
   top: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background: linear-gradient(180deg, #8B5CF6 0%, #7C3AED 20%, #3B82F6 50%, #2563EB 75%, #FFD700 100%);
+  background: linear-gradient(180deg, #1E88E5 0%, #42A5F5 30%, #64B5F6 50%, #FFD700 85%, #FFC107 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -56,19 +56,20 @@
 .logo-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
 .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 1px; width: 100%; align-items: center; }
 .sidebar-btn {
-  width: 40px; height: 40px; border: none; background: rgba(255,255,255,0.10);
-  border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center;
-  position: relative; transition: all 0.25s ease; font-size: 18px;
-  border: 1px solid rgba(255,255,255,0.08);
+  width: 44px; height: 36px; border: none; background: rgba(255,255,255,0.08);
+  border-radius: var(--radius); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; transition: all 0.25s ease; gap: 1px;
+  border: 1px solid rgba(255,255,255,0.06);
 }
-.sidebar-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.05); border-color: rgba(255,255,255,0.20); }
-.sidebar-btn.active { background: rgba(255,255,255,0.28); border-color: rgba(255,255,255,0.35); box-shadow: 0 2px 12px rgba(0,0,0,0.10); }
+.sidebar-btn:hover { background: rgba(255,255,255,0.20); border-color: rgba(255,255,255,0.18); }
+.sidebar-btn.active { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.30); box-shadow: 0 2px 12px rgba(0,0,0,0.10); }
 .sidebar-btn.active::before {
   content: ''; position: absolute; left: -13px; top: 50%; transform: translateY(-50%);
-  width: 3px; height: 18px; background: #FFD700; border-radius: 0 3px 3px 0;
-  box-shadow: 0 0 6px rgba(255,215,0,0.5);
+  width: 3px; height: 16px; background: #FFD700; border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px rgba(255,215,0,0.6);
 }
-.sidebar-icon { font-size: 18px; line-height: 1; filter: brightness(1.5); }
+.sidebar-icon { font-size: 14px; line-height: 1; filter: brightness(1.6); }
+.sidebar-label { display: block; font-size: 6px; font-weight: 600; color: rgba(255,255,255,0.8); letter-spacing: 0.3px; text-transform: uppercase; line-height: 1; white-space: nowrap; }
 .sidebar-footer { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.15); width: 100%; }
 .sidebar-avatar {
   width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.25);
