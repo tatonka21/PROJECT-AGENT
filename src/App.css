@@ -43,7 +43,7 @@
   top: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background: linear-gradient(180deg, #1E88E5 0%, #42A5F5 30%, #64B5F6 50%, #FFD700 85%, #FFC107 100%);
+  background: linear-gradient(180deg, #1E88E5 0%, #42A5F5 30%, #64B5F6 50%, #A855F7 85%, #7C3AED 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -65,8 +65,8 @@
 .sidebar-btn.active { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.30); box-shadow: 0 2px 12px rgba(0,0,0,0.10); }
 .sidebar-btn.active::before {
   content: ''; position: absolute; left: -13px; top: 50%; transform: translateY(-50%);
-  width: 3px; height: 16px; background: #FFD700; border-radius: 0 3px 3px 0;
-  box-shadow: 0 0 8px rgba(255,215,0,0.6);
+  width: 3px; height: 16px; background: #C084FC; border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px rgba(192,132,252,0.6);
 }
 .sidebar-icon { font-size: 14px; line-height: 1; filter: brightness(1.6); }
 .sidebar-label { display: block; font-size: 6px; font-weight: 600; color: rgba(255,255,255,0.8); letter-spacing: 0.3px; text-transform: uppercase; line-height: 1; white-space: nowrap; }
@@ -100,7 +100,7 @@
 .app-title {
   font-size: 18px;
   font-weight: 800;
-  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #A855F7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -133,7 +133,7 @@
 .btn-icon:hover { background: rgba(255,255,255,0.9); transform: scale(1.05); }
 .user-avatar {
   width: 34px; height: 34px; border-radius: 50%;
-  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #A855F7);
   color: white; display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 600; cursor: pointer;
   box-shadow: 0 2px 8px rgba(255,215,0,0.25);
@@ -192,7 +192,7 @@
 .grid-header h2 {
   font-size: 22px;
   font-weight: 800;
-  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #A855F7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -263,15 +263,15 @@
   left: 0;
   right: 0;
   height: 5px;
-  background: linear-gradient(90deg, #FFD700, #FFEB3B, #FFD700);
-  box-shadow: 0 0 8px rgba(255,215,0,0.3), 0 0 20px rgba(255,215,0,0.1);
+  background: linear-gradient(90deg, #8B5CF6, #A855F7, #C084FC);
+  box-shadow: 0 0 8px rgba(139,92,246,0.3), 0 0 20px rgba(168,85,247,0.1);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  animation: yellowPulse 3s ease-in-out infinite;
+  animation: purplePulse 3s ease-in-out infinite;
   z-index: 2;
 }
 
-@keyframes yellowPulse {
-  0%, 100% { opacity: 0.8; box-shadow: 0 0 8px rgba(255,215,0,0.3), 0 0 20px rgba(255,215,0,0.1); }
+@keyframes purplePulse {
+  0%, 100% { opacity: 0.8; box-shadow: 0 0 8px rgba(139,92,246,0.3), 0 0 20px rgba(168,85,247,0.1); }
   50% { opacity: 1; box-shadow: 0 0 16px rgba(255,215,0,0.5), 0 0 40px rgba(255,215,0,0.2); }
 }
 
@@ -393,7 +393,7 @@
 }
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(90deg, #8B5CF6, #3B82F6, #A855F7);
   border-radius: 4px;
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -473,7 +473,7 @@
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #A855F7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -554,7 +554,7 @@
   left: 8px;
   right: 8px;
   height: 2px;
-  background: linear-gradient(90deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(90deg, #8B5CF6, #3B82F6, #A855F7);
   border-radius: 2px 2px 0 0;
 }
 
@@ -623,7 +623,7 @@
   box-shadow: 0 0 6px rgba(59,130,246,0.3);
 }
 .activity-dot.yellow {
-  background: linear-gradient(135deg, #FFD700, #FFEB3B);
+  background: linear-gradient(135deg, #A855F7, #C084FC);
   box-shadow: 0 0 6px rgba(255,215,0,0.3);
 }
 .activity-item p {
@@ -764,7 +764,7 @@
 }
 .ai-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #A855F7);
   color: white;
   font-size: 10px;
   font-weight: 700;
@@ -842,7 +842,7 @@
 .typing-indicator span {
   width: 7px;
   height: 7px;
-  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #A855F7);
   border-radius: 50%;
   animation: typing 1.4s infinite ease-in-out;
 }
@@ -886,7 +886,7 @@
   height: 36px;
   border: none;
   border-radius: var(--radius);
-  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #A855F7);
   color: white;
   font-size: 16px;
   cursor: pointer;
@@ -911,7 +911,7 @@
   transition: all 0.20s;
 }
 .btn-primary {
-  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #FFD700);
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6, #A855F7);
   color: white;
   padding: 8px 18px;
   box-shadow: 0 2px 8px rgba(255,215,0,0.20);
