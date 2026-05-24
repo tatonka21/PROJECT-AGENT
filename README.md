@@ -1,73 +1,86 @@
-# React + TypeScript + Vite
+# 🏢 Project Management App — AI Agent Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Ultra-premium glassmorphism project management dashboard with built-in AI agent powered by Ollama.**
 
-Currently, two official plugins are available:
+![Version](https://img.shields.io/badge/version-1.0.0-purple)
+![React](https://img.shields.io/badge/React-19-3B82F6)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0-8B5CF6)
+![Vite](https://img.shields.io/badge/Vite-8.0-F59E0B)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 🟣🔵🟡 **Gradient Glassmorphism UI** — Purple → Blue → Hot Yellow design language
+- ⚡ **Project Grid View** — Beautiful card grid with lightning yellow accents
+- 🏠 **Project Home View** — Full-screen project management for each project
+- 🤖 **AI Agent Assistant** — Powered by Ollama (local LLM) with real-time chat
+- 🧊 **Frosted Glass Effects** — backdrop-filter blur, embossed cards, premium shadows
+- 📊 **7 Sample Projects** — Pre-loaded with stats, tasks, and progress tracking
+- ✅ **Task Management** — Checkboxes, priorities, statuses, and filters
+- 📱 **Responsive Layout** — Sidebar navigation with 4-panel workspace
 
-## Expanding the ESLint configuration
+## 🚀 Quick Start
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# Install dependencies
+npm install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Start development server
+npx vite
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Open in browser
+# http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🤖 Setting Up the AI Agent
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The AI panel connects to your **local Ollama** instance:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Install [Ollama](https://ollama.com)
+2. Pull a model:
+```bash
+ollama pull llama3.2
 ```
+3. Start Ollama (it runs on `localhost:11434`)
+4. Refresh the app — the AI agent is now live!
+
+## 🏗️ Project Structure
+
+```
+src/
+├── components/
+│   ├── AIPanel.tsx        # AI chat interface (Ollama-powered)
+│   ├── ProjectGrid.tsx    # Card grid view (default)
+│   ├── ProjectHome.tsx    # Full project detail view
+│   └── Sidebar.tsx        # Gradient navigation sidebar
+├── services/
+│   └── ollama.ts          # Ollama API client
+├── App.tsx                # Main app with view switching
+├── App.css                # Complete glassmorphism styling
+├── index.css              # CSS variables and global styles
+├── main.tsx               # Entry point
+└── types.ts               # Shared TypeScript interfaces
+```
+
+## 🎨 Design System
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--primary` | `#8B5CF6` | Purple accent |
+| `--secondary` | `#3B82F6` | Blue accent |
+| `--accent` | `#F59E0B` | Yellow accent |
+| `--hot-yellow` | `#FFD700` | Lightning accents |
+| `--glass-bg` | `rgba(255,255,255,0.72)` | Frosted glass |
+| `--glass-blur` | `blur(16px)` | Backdrop blur |
+
+## 🛠️ Build
+
+```bash
+npm run build     # Production build → dist/
+npm run preview   # Preview production build
+```
+
+---
+
+*Built with ❤️ using React, TypeScript, Vite & Ollama*
