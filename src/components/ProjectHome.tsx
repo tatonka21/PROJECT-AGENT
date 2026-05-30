@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { Project } from '../types';
 
 interface TaskItem {
@@ -21,41 +21,33 @@ interface ProjectHomeProps {
 function useFloatingDropdown() {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
-  const triggerRef = useRef<HTMLSpanElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const toggle = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
+  const toggle = (e: React.MouseEvent) => {
     const el = e.currentTarget as HTMLElement;
     const rect = el.getBoundingClientRect();
     setPos({ top: rect.bottom + 4, left: rect.left });
-    setOpen((prev) => !prev);
-  }, []);
+    setOpen(true);
+  };
 
   // Close on outside click
   useEffect(() => {
     if (!open) return;
     const handleClick = (e: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target as Node) &&
-        triggerRef.current &&
-        !triggerRef.current.contains(e.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
-    // Close on scroll
     const handleScroll = () => setOpen(false);
     document.addEventListener('mousedown', handleClick);
-    document.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('scroll', handleScroll, true);
     return () => {
       document.removeEventListener('mousedown', handleClick);
-      document.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [open]);
 
-  const close = useCallback(() => setOpen(false), []);
+  const close = () => setOpen(false);
 
   const menuStyle: React.CSSProperties = {
     position: 'fixed',
@@ -64,7 +56,7 @@ function useFloatingDropdown() {
     zIndex: 10000,
   };
 
-  return { open, toggle, close, menuStyle, triggerRef, menuRef };
+  return { open, toggle, close, menuStyle, menuRef };
 }
 
 // --- Task Card Sub-Component ---
@@ -211,7 +203,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask }) => {
         <div className="task-card-meta-row">
           {/* Priority Dropdown (floating) */}
           <span
-            ref={priorityDD.triggerRef}
             className={`priority-tag priority-${task.priority} dropdown-trigger`}
             onClick={priorityDD.toggle}
           >
@@ -297,7 +288,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask }) => {
 
           {/* Status Dropdown (floating) */}
           <span
-            ref={statusDD.triggerRef}
             className={`task-status-tag status-${task.status} dropdown-trigger`}
             onClick={statusDD.toggle}
           >
