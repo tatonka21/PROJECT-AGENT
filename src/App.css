@@ -900,6 +900,150 @@
 .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 /* ============================================================
+   EDITABLE FIELDS & DROPDOWNS
+   ============================================================ */
+
+/* Editable Title */
+.editable-title {
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: var(--radius);
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+.editable-title:hover {
+  background: rgba(139,92,246,0.06);
+  box-shadow: 0 0 0 2px rgba(139,92,246,0.10);
+}
+
+.editable-title-input {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  background: rgba(255,255,255,0.85);
+  border: 2px solid rgba(139,92,246,0.25);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  outline: none;
+  width: 100%;
+  max-width: 500px;
+  font-family: inherit;
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.08);
+  transition: all 0.2s;
+}
+.editable-title-input:focus {
+  border-color: rgba(139,92,246,0.5);
+  box-shadow: 0 0 0 4px rgba(139,92,246,0.12);
+}
+
+/* Editable Description */
+.editable-desc {
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: var(--radius);
+  padding: 4px 6px;
+  margin: -4px -6px;
+}
+.editable-desc:hover {
+  background: rgba(139,92,246,0.04);
+  box-shadow: 0 0 0 2px rgba(139,92,246,0.08);
+}
+
+.editable-desc-textarea {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  background: rgba(255,255,255,0.85);
+  border: 2px solid rgba(139,92,246,0.25);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  outline: none;
+  width: 100%;
+  max-width: 700px;
+  font-family: inherit;
+  resize: vertical;
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.08);
+  transition: all 0.2s;
+  margin-bottom: 20px;
+}
+.editable-desc-textarea:focus {
+  border-color: rgba(139,92,246,0.5);
+  box-shadow: 0 0 0 4px rgba(139,92,246,0.12);
+}
+
+/* Dropdown Wrapper */
+.dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-trigger {
+  cursor: pointer !important;
+  user-select: none;
+  transition: all 0.2s;
+}
+.dropdown-trigger:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  margin-left: 4px;
+  opacity: 0.6;
+  vertical-align: middle;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  padding: 6px;
+  min-width: 160px;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+}
+.dropdown-item:hover {
+  background: rgba(139,92,246,0.08);
+}
+.dropdown-item.selected {
+  background: rgba(139,92,246,0.06);
+  border-left: 3px solid #8B5CF6;
+}
+.dropdown-item .project-status,
+.dropdown-item .priority-badge {
+  pointer-events: none;
+}
+
+/* Status colors for in-progress */
+.status-in-progress {
+  color: #7C3AED;
+  background: rgba(139,92,246,0.12);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(139,92,246,0.15);
+}
+
+/* ============================================================
    BUTTONS
    ============================================================ */
 .btn-primary, .btn-secondary {

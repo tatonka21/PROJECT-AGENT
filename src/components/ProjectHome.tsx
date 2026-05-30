@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { Project } from '../types';
 
 interface TaskItem {
@@ -13,9 +13,10 @@ interface TaskItem {
 interface ProjectHomeProps {
   project: Project;
   onBack: () => void;
+  onUpdateProject: (updated: Project) => void;
 }
 
-const ProjectHome: React.FC<ProjectHomeProps> = ({ project, onBack }) => {
+const ProjectHome: React.FC<ProjectHomeProps> = ({ project, onBack, onUpdateProject }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'team' | 'files'>('overview');
   const [taskStatuses, setTaskStatuses] = useState<Record<number, 'todo' | 'in-progress' | 'done'>>({
     1: 'done',
@@ -24,6 +25,48 @@ const ProjectHome: React.FC<ProjectHomeProps> = ({ project, onBack }) => {
     4: 'todo',
     5: 'todo',
   });
+
+  // Editable fields
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(project.name);
+  const [descDraft, setDescDraft] = useState(project.description);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
+
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descRef = useRef<HTMLTextAreaElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const priorityRef = useRef<HTMLDivElement>(null);
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (editingTitle && titleRef.current) {
+      titleRef.current.focus();
+      titleRef.current.select();
+    }
+  }, [editingTitle]);
+
+  useEffect(() => {
+    if (editingDesc && descRef.current) {
+      descRef.current.focus();
+      descRef.current.select();
+    }
+  }, [editingDesc]);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (statusRef.current && !statusRef.current.contains(e.target as Node)) {
+        setShowStatusDropdown(false);
+      }
+      if (priorityRef.current && !priorityRef.current.contains(e.target as Node)) {
+        setShowPriorityDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   const tasks: TaskItem[] = [
     { id: 1, title: 'Design system implementation', assignee: 'Alice', status: 'done', priority: 'high', dueDate: 'May 20' },
@@ -41,6 +84,75 @@ const ProjectHome: React.FC<ProjectHomeProps> = ({ project, onBack }) => {
     });
   };
 
+  // --- Editable Title ---
+  const handleTitleBlur = () => {
+    setEditingTitle(false);
+    const trimmed = titleDraft.trim();
+    if (trimmed && trimmed !== project.name) {
+      onUpdateProject({ ...project, name: trimmed });
+    } else {
+      setTitleDraft(project.name);
+    }
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      (e.target as HTMLInputElement).blur();
+    }
+    if (e.key === 'Escape') {
+      setTitleDraft(project.name);
+      setEditingTitle(false);
+    }
+  };
+
+  // --- Editable Description ---
+  const handleDescBlur = () => {
+    setEditingDesc(false);
+    const trimmed = descDraft.trim();
+    if (trimmed && trimmed !== project.description) {
+      onUpdateProject({ ...project, description: trimmed });
+    } else {
+      setDescDraft(project.description);
+    }
+  };
+
+  const handleDescKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setDescDraft(project.description);
+      setEditingDesc(false);
+    }
+  };
+
+  // --- Status Dropdown ---
+  const statusOptions: Array<{ value: Project['status']; label: string; icon: string }> = [
+    { value: 'active', label: 'Active', icon: '●' },
+    { value: 'in-progress', label: 'In Progress', icon: '⟳' },
+    { value: 'completed', label: 'Completed', icon: '✓' },
+    { value: 'on-hold', label: 'On Hold', icon: '◷' },
+  ];
+
+  const handleStatusChange = (status: Project['status']) => {
+    onUpdateProject({ ...project, status });
+    setShowStatusDropdown(false);
+  };
+
+  // --- Priority Dropdown ---
+  const priorityOptions: Array<{ value: Project['priority']; label: string }> = [
+    { value: 'high', label: 'High Priority' },
+    { value: 'medium', label: 'Medium Priority' },
+    { value: 'low', label: 'Low Priority' },
+  ];
+
+  const handlePriorityChange = (priority: Project['priority']) => {
+    onUpdateProject({ ...project, priority });
+    setShowPriorityDropdown(false);
+  };
+
+  const getStatusLabel = (s: Project['status']) => {
+    const opt = statusOptions.find((o) => o.value === s);
+    return opt ? `${opt.icon} ${opt.label}` : s;
+  };
+
   return (
     <div className="project-home">
       {/* Header */}
@@ -54,19 +166,105 @@ const ProjectHome: React.FC<ProjectHomeProps> = ({ project, onBack }) => {
           </span>
         </div>
         <div className="project-home-title-row">
-          <h1>{project.name}</h1>
-          <span className={`project-status status-${project.status}`}>
-            {project.status === 'active'
-              ? '● Active'
-              : project.status === 'completed'
-              ? '✓ Completed'
-              : '◷ On Hold'}
-          </span>
-          <span className={`priority-badge priority-${project.priority}`}>
-            {project.priority} priority
-          </span>
+          {editingTitle ? (
+            <input
+              ref={titleRef}
+              className="editable-title-input"
+              value={titleDraft}
+              onChange={(e) => setTitleDraft(e.target.value.slice(0, 31))}
+              onBlur={handleTitleBlur}
+              onKeyDown={handleTitleKeyDown}
+              maxLength={31}
+            />
+          ) : (
+            <h1
+              className="editable-title"
+              onClick={() => {
+                setTitleDraft(project.name);
+                setEditingTitle(true);
+              }}
+              title="Click to edit title"
+            >
+              {project.name}
+            </h1>
+          )}
+
+          {/* Status Dropdown */}
+          <div className="dropdown-wrapper" ref={statusRef}>
+            <span
+              className={`project-status status-${project.status} dropdown-trigger`}
+              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+            >
+              {getStatusLabel(project.status)} <span className="dropdown-arrow">▾</span>
+            </span>
+            {showStatusDropdown && (
+              <div className="dropdown-menu">
+                {statusOptions.map((opt) => (
+                  <div
+                    key={opt.value}
+                    className={`dropdown-item ${project.status === opt.value ? 'selected' : ''}`}
+                    onClick={() => handleStatusChange(opt.value)}
+                  >
+                    <span className={`project-status status-${opt.value}`}>
+                      {opt.icon} {opt.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Priority Dropdown */}
+          <div className="dropdown-wrapper" ref={priorityRef}>
+            <span
+              className={`priority-badge priority-${project.priority} dropdown-trigger`}
+              onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
+            >
+              {project.priority} priority <span className="dropdown-arrow">▾</span>
+            </span>
+            {showPriorityDropdown && (
+              <div className="dropdown-menu">
+                {priorityOptions.map((opt) => (
+                  <div
+                    key={opt.value}
+                    className={`dropdown-item ${project.priority === opt.value ? 'selected' : ''}`}
+                    onClick={() => handlePriorityChange(opt.value)}
+                  >
+                    <span className={`priority-badge priority-${opt.value}`}>
+                      {opt.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        <p className="project-home-desc">{project.description}</p>
+
+        {/* Editable Description */}
+        {editingDesc ? (
+          <textarea
+            ref={descRef}
+            className="editable-desc-textarea"
+            value={descDraft}
+            onChange={(e) => setDescDraft(e.target.value.slice(0, 150))}
+            onBlur={handleDescBlur}
+            onKeyDown={handleDescKeyDown}
+            maxLength={150}
+            rows={3}
+          />
+        ) : (
+          <p
+            className="project-home-desc editable-desc"
+            onClick={() => {
+              setDescDraft(project.description);
+              setEditingTitle(false);
+              setEditingDesc(true);
+            }}
+            title="Click to edit overview"
+          >
+            {project.description}
+          </p>
+        )}
 
         {/* Stats */}
         <div className="project-stats">

@@ -50,6 +50,12 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, onSelectProject }) 
             Completed
           </button>
           <button
+            className={`grid-filter-btn ${activeFilter === 'in-progress' ? 'active' : ''}`}
+            onClick={() => setActiveFilter('in-progress')}
+          >
+            In Progress
+          </button>
+          <button
             className={`grid-filter-btn ${activeFilter === 'on-hold' ? 'active' : ''}`}
             onClick={() => setActiveFilter('on-hold')}
           >
@@ -70,6 +76,8 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, onSelectProject }) 
               <span className={`project-status status-${project.status}`}>
                 {project.status === 'active'
                   ? '● Active'
+                  : project.status === 'in-progress'
+                  ? '⟳ In Progress'
                   : project.status === 'completed'
                   ? '✓ Done'
                   : '◷ On Hold'}
