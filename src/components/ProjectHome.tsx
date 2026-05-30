@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { Project } from '../types';
 
 interface TaskItem {
@@ -15,6 +15,56 @@ interface ProjectHomeProps {
   project: Project;
   onBack: () => void;
   onUpdateProject: (updated: Project) => void;
+}
+
+// --- Floating Dropdown Hook ---
+function useFloatingDropdown() {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const toggle = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    setPos({ top: rect.bottom + 4, left: rect.left });
+    setOpen((prev) => !prev);
+  }, []);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    // Close on scroll
+    const handleScroll = () => setOpen(false);
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [open]);
+
+  const close = useCallback(() => setOpen(false), []);
+
+  const menuStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: pos.top,
+    left: pos.left,
+    zIndex: 10000,
+  };
+
+  return { open, toggle, close, menuStyle, triggerRef, menuRef };
 }
 
 // --- Task Card Sub-Component ---
@@ -43,8 +93,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask }) => {
   const [assigneeDraft, setAssigneeDraft] = useState(task.assignee);
   const [dueDateDraft, setDueDateDraft] = useState(task.dueDate);
   const [notesDraft, setNotesDraft] = useState(task.notes);
-  const [showPriority, setShowPriority] = useState(false);
-  const [showStatus, setShowStatus] = useState(false);
+
+  const priorityDD = useFloatingDropdown();
+  const statusDD = useFloatingDropdown();
 
   const titleInputRef = useRef<HTMLInputElement>(null);
   const assigneeInputRef = useRef<HTMLInputElement>(null);
@@ -158,31 +209,35 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask }) => {
 
         {/* Meta row: priority, assignee, due date, status */}
         <div className="task-card-meta-row">
-          {/* Priority Dropdown */}
-          <div className="dropdown-wrapper" style={{ display: 'inline-block' }}>
-            <span
-              className={`priority-tag priority-${task.priority} dropdown-trigger`}
-              onClick={(e) => { e.stopPropagation(); setShowPriority(!showPriority); }}
+          {/* Priority Dropdown (floating) */}
+          <span
+            ref={priorityDD.triggerRef}
+            className={`priority-tag priority-${task.priority} dropdown-trigger`}
+            onClick={priorityDD.toggle}
+          >
+            {task.priority} <span className="dropdown-arrow">▾</span>
+          </span>
+          {priorityDD.open && (
+            <div
+              ref={priorityDD.menuRef}
+              className="dropdown-menu"
+              style={priorityDD.menuStyle}
+              onClick={(e) => e.stopPropagation()}
             >
-              {task.priority} <span className="dropdown-arrow">▾</span>
-            </span>
-            {showPriority && (
-              <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
-                {taskPriorityOptions.map((opt) => (
-                  <div
-                    key={opt.value}
-                    className={`dropdown-item ${task.priority === opt.value ? 'selected' : ''}`}
-                    onClick={() => {
-                      onUpdateTask(task.id, { priority: opt.value });
-                      setShowPriority(false);
-                    }}
-                  >
-                    <span className={`priority-tag priority-${opt.value}`}>{opt.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+              {taskPriorityOptions.map((opt) => (
+                <div
+                  key={opt.value}
+                  className={`dropdown-item ${task.priority === opt.value ? 'selected' : ''}`}
+                  onClick={() => {
+                    onUpdateTask(task.id, { priority: opt.value });
+                    priorityDD.close();
+                  }}
+                >
+                  <span className={`priority-tag priority-${opt.value}`}>{opt.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Editable Assignee */}
           {editingAssignee ? (
@@ -240,31 +295,35 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask }) => {
             </span>
           )}
 
-          {/* Status Dropdown */}
-          <div className="dropdown-wrapper" style={{ display: 'inline-block' }}>
-            <span
-              className={`task-status-tag status-${task.status} dropdown-trigger`}
-              onClick={(e) => { e.stopPropagation(); setShowStatus(!showStatus); }}
+          {/* Status Dropdown (floating) */}
+          <span
+            ref={statusDD.triggerRef}
+            className={`task-status-tag status-${task.status} dropdown-trigger`}
+            onClick={statusDD.toggle}
+          >
+            {getTaskStatusLabel(task.status)} <span className="dropdown-arrow">▾</span>
+          </span>
+          {statusDD.open && (
+            <div
+              ref={statusDD.menuRef}
+              className="dropdown-menu"
+              style={statusDD.menuStyle}
+              onClick={(e) => e.stopPropagation()}
             >
-              {getTaskStatusLabel(task.status)} <span className="dropdown-arrow">▾</span>
-            </span>
-            {showStatus && (
-              <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
-                {taskStatusOptions.map((opt) => (
-                  <div
-                    key={opt.value}
-                    className={`dropdown-item ${task.status === opt.value ? 'selected' : ''}`}
-                    onClick={() => {
-                      onUpdateTask(task.id, { status: opt.value });
-                      setShowStatus(false);
-                    }}
-                  >
-                    <span className={`task-status-tag status-${opt.value}`}>{opt.icon} {opt.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+              {taskStatusOptions.map((opt) => (
+                <div
+                  key={opt.value}
+                  className={`dropdown-item ${task.status === opt.value ? 'selected' : ''}`}
+                  onClick={() => {
+                    onUpdateTask(task.id, { status: opt.value });
+                    statusDD.close();
+                  }}
+                >
+                  <span className={`task-status-tag status-${opt.value}`}>{opt.icon} {opt.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
