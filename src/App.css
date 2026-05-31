@@ -553,13 +553,22 @@
 .stat-value.capitalize { text-transform: capitalize; }
 .stat-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; }
 
+.project-home-tabs-scroll {
+  overflow-x: auto;
+  width: 100%;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(8px);
+}
+.project-home-tabs-scroll::-webkit-scrollbar { height: 4px; }
+.project-home-tabs-scroll::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.15); border-radius: 4px; }
+
 .project-home-tabs {
   display: flex;
   gap: 2px;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
   padding: 0 32px;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  min-width: min-content;
 }
 .project-home-tabs .tab-btn {
   padding: 12px 20px;
@@ -1328,6 +1337,96 @@
 }
 
 .notes-controls { display: flex; align-items: center; gap: 10px; }
+
+/* ============================================================
+   PROJECT NOTES (inside ProjectHome)
+   ============================================================ */
+.pnotes-section { max-width: 1100px; }
+.pnotes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.pnote-card {
+  background: var(--card-bg); border: var(--emboss-border); border-radius: var(--radius-xl);
+  padding: 16px; backdrop-filter: blur(8px); box-shadow: var(--emboss-shadow), var(--glass-shadow);
+  transition: all 0.25s;
+}
+.pnote-card:hover { box-shadow: var(--emboss-shadow), 0 8px 24px rgba(0,0,0,0.08); }
+.pnote-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.pnote-card-header h4 { font-size: 15px; font-weight: 700; color: var(--text-primary); cursor: pointer; flex: 1; }
+.pnote-card-content { cursor: pointer; }
+.pnote-card-edit { display: flex; flex-direction: column; gap: 8px; }
+
+/* ============================================================
+   DPLOY
+   ============================================================ */
+.dploy-section { max-width: 1100px; }
+.dploy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+.dploy-card {
+  background: var(--card-bg); border: var(--emboss-border); border-radius: var(--radius-xl);
+  padding: 20px; backdrop-filter: blur(8px); box-shadow: var(--emboss-shadow), var(--glass-shadow);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.dploy-card-header { display: flex; align-items: center; justify-content: space-between; }
+.dploy-status { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px; text-transform: capitalize; }
+.dploy-status.active { background: rgba(16,185,129,0.12); color: #059669; border: 1px solid rgba(16,185,129,0.15); }
+.dploy-status.idle { background: rgba(148,163,184,0.12); color: #64748B; border: 1px solid rgba(148,163,184,0.15); }
+.dploy-status.completed { background: rgba(59,130,246,0.12); color: #2563EB; border: 1px solid rgba(59,130,246,0.15); }
+.dploy-status.error { background: rgba(239,68,68,0.12); color: #DC2626; border: 1px solid rgba(239,68,68,0.15); }
+
+.dploy-name-input {
+  font-size: 16px; font-weight: 700; color: var(--text-primary);
+  border: none; background: transparent; outline: none; padding: 2px 4px;
+  border-bottom: 1px solid transparent; transition: all 0.2s;
+}
+.dploy-name-input:focus { border-bottom-color: rgba(139,92,246,0.25); background: rgba(255,255,255,0.3); border-radius: var(--radius-sm); }
+.dploy-desc-input {
+  font-size: 13px; color: var(--text-secondary);
+  border: none; background: transparent; outline: none; padding: 2px 4px;
+}
+.dploy-desc-input:focus { background: rgba(255,255,255,0.3); border-radius: var(--radius-sm); }
+.dploy-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dploy-meta-item { display: flex; flex-direction: column; gap: 2px; }
+.dploy-meta-item label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+.dploy-meta-item input { font-size: 12px; color: var(--text-primary); border: var(--glass-border); border-radius: var(--radius-sm); padding: 4px 6px; background: rgba(255,255,255,0.5); outline: none; }
+.dploy-meta-item input:focus { border-color: rgba(139,92,246,0.3); }
+
+/* ============================================================
+   AGENT
+   ============================================================ */
+.agent-section { max-width: 1100px; }
+.agent-tasks-list { display: flex; flex-direction: column; gap: 12px; }
+.agent-task-card {
+  background: var(--card-bg); border: var(--emboss-border); border-radius: var(--radius-xl);
+  padding: 18px 20px; backdrop-filter: blur(8px); box-shadow: var(--emboss-shadow), var(--glass-shadow);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.agent-task-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.agent-task-title-input {
+  font-size: 15px; font-weight: 700; color: var(--text-primary);
+  border: none; background: transparent; outline: none; flex: 1; min-width: 200px; padding: 2px 4px;
+}
+.agent-task-title-input:focus { background: rgba(255,255,255,0.3); border-radius: var(--radius-sm); }
+.agent-select {
+  font-size: 12px; padding: 4px 8px; border: var(--glass-border);
+  border-radius: var(--radius-sm); background: rgba(255,255,255,0.6);
+  color: var(--text-primary); outline: none; cursor: pointer;
+}
+.agent-task-desc {
+  font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+  border: var(--glass-border); border-radius: var(--radius);
+  padding: 8px 10px; background: rgba(255,255,255,0.4); outline: none;
+  font-family: inherit; resize: vertical; width: 100%;
+}
+.agent-task-desc:focus { border-color: rgba(139,92,246,0.3); background: rgba(255,255,255,0.6); }
+.agent-task-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.agent-meta-input {
+  font-size: 12px; color: var(--text-primary);
+  border: var(--glass-border); border-radius: var(--radius-sm);
+  padding: 4px 10px; background: rgba(255,255,255,0.5); outline: none; min-width: 160px;
+}
+.agent-meta-input:focus { border-color: rgba(139,92,246,0.3); }
+.agent-checkbox-label { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.agent-checkbox-label input { accent-color: var(--primary); }
+
+.integration-status { margin: 12px 0; }
 
 /* ============================================================
    ANIMATIONS

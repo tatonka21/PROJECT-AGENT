@@ -10,6 +10,16 @@ import FilesView from './components/FilesView';
 import TeamView from './components/TeamView';
 import MessagingView from './components/MessagingView';
 import BaseView from './components/BaseView';
+import CrmView from './components/CrmView';
+import AccountView from './components/AccountView';
+import ApiView from './components/ApiView';
+import GoalsView from './components/GoalsView';
+import PlanningView from './components/PlanningView';
+import ProductsView from './components/ProductsView';
+import DataView from './components/DataView';
+import SalesView from './components/SalesView';
+import LeadsView from './components/LeadsView';
+import MiscView from './components/MiscView';
 import AIPanel from './components/AIPanel';
 import NewProjectModal from './components/NewProjectModal';
 import NotificationPanel from './components/NotificationPanel';
@@ -168,22 +178,18 @@ const App: React.FC = () => {
     if (activeView === 'team') return <ErrorBoundary name="Team"><TeamView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'messaging') return <ErrorBoundary name="Messaging"><MessagingView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'base') return <ErrorBoundary name="Settings"><BaseView key={refreshKey} darkMode={darkMode} onToggleDarkMode={handleToggleDarkMode} /></ErrorBoundary>;
-    if (activeView === 'task') {
-      return (
-        <div className="card-grid-view">
-          <ProjectGrid
-            key={refreshKey}
-            projects={projects}
-            onSelectProject={handleSelectProject}
-            onNewProject={() => setShowNewProject(true)}
-            onDeleteProject={handleDeleteProject}
-            onArchiveProject={handleArchiveProject}
-          />
-          <AIPanel />
-        </div>
-      );
-    }
+    if (activeView === 'crm') return <ErrorBoundary name="CRM"><CrmView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'account') return <ErrorBoundary name="Account"><AccountView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'apis') return <ErrorBoundary name="APIs"><ApiView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'goals') return <ErrorBoundary name="Goals"><GoalsView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'planning') return <ErrorBoundary name="Planning"><PlanningView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'products') return <ErrorBoundary name="Products"><ProductsView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'data') return <ErrorBoundary name="Data"><DataView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'sales') return <ErrorBoundary name="Sales"><SalesView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'leads') return <ErrorBoundary name="Leads"><LeadsView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'misc') return <ErrorBoundary name="Misc"><MiscView key={refreshKey} /></ErrorBoundary>;
 
+    // Fallback
     return (
       <div className="card-grid-view">
         <ProjectGrid

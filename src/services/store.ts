@@ -10,6 +10,7 @@ const defaultData: AppData = {
     {
       id: 1, name: 'Website Redesign', description: 'Complete overhaul of the company website with modern UI/UX design principles and improved performance.',
       status: 'active', progress: 65, dueDate: 'Jun 15', priority: 'high', createdAt: '2026-01-10', updatedAt: '2026-05-28', tags: ['Frontend', 'Design'], team: [1, 2],
+      notes: [], dploys: [], agentTasks: [],
       tasks: [
         { id: 1, title: 'Design system implementation', assignee: 'Alice', status: 'done', priority: 'high', dueDate: 'May 20', notes: 'Completed the full design system with component library, color tokens, and typography scale.', createdAt: '2026-01-15', projectId: 1 },
         { id: 2, title: 'User authentication module', assignee: 'Bob', status: 'in-progress', priority: 'high', dueDate: 'May 25', notes: 'Working on OAuth2 integration with JWT tokens.', createdAt: '2026-02-01', projectId: 1 },
@@ -21,6 +22,7 @@ const defaultData: AppData = {
     {
       id: 2, name: 'Mobile App v2', description: 'Version 2 of the mobile application with new features including offline mode and push notifications.',
       status: 'active', progress: 35, dueDate: 'Jul 20', priority: 'high', createdAt: '2026-02-01', updatedAt: '2026-05-25', tags: ['Mobile', 'React Native'], team: [2, 3],
+      notes: [], dploys: [], agentTasks: [],
       tasks: [
         { id: 6, title: 'Offline mode implementation', assignee: 'Bob', status: 'in-progress', priority: 'high', dueDate: 'Jun 15', notes: 'Using IndexedDB for local storage sync.', createdAt: '2026-02-15', projectId: 2 },
         { id: 7, title: 'Push notification service', assignee: 'Charlie', status: 'todo', priority: 'high', dueDate: 'Jun 30', notes: '', createdAt: '2026-03-01', projectId: 2 },
@@ -30,6 +32,7 @@ const defaultData: AppData = {
     {
       id: 3, name: 'API Integration Hub', description: 'Central API gateway for third-party integrations with authentication and rate limiting.',
       status: 'on-hold', progress: 80, dueDate: 'May 30', priority: 'medium', createdAt: '2026-01-05', updatedAt: '2026-05-20', tags: ['Backend', 'API'], team: [3, 4],
+      notes: [], dploys: [], agentTasks: [],
       tasks: [
         { id: 9, title: 'Gateway architecture', assignee: 'Charlie', status: 'done', priority: 'high', dueDate: 'Apr 15', notes: 'Completed gateway architecture design.', createdAt: '2026-01-10', projectId: 3 },
         { id: 10, title: 'Rate limiting middleware', assignee: 'Diana', status: 'done', priority: 'medium', dueDate: 'May 1', notes: 'Implemented token bucket algorithm.', createdAt: '2026-02-01', projectId: 3 },
@@ -38,6 +41,7 @@ const defaultData: AppData = {
     {
       id: 4, name: 'Data Analytics Dashboard', description: 'Real-time analytics dashboard with custom reporting, charts, and export capabilities.',
       status: 'in-progress', progress: 20, dueDate: 'Aug 10', priority: 'medium', createdAt: '2026-03-01', updatedAt: '2026-05-15', tags: ['Analytics', 'Frontend'], team: [1, 5],
+      notes: [], dploys: [], agentTasks: [],
       tasks: [
         { id: 11, title: 'Chart component library', assignee: 'Alice', status: 'in-progress', priority: 'high', dueDate: 'Jun 20', notes: 'Using D3.js for custom visualizations.', createdAt: '2026-03-15', projectId: 4 },
         { id: 12, title: 'Data export feature', assignee: 'Eve', status: 'todo', priority: 'medium', dueDate: 'Jul 15', notes: '', createdAt: '2026-04-01', projectId: 4 },
@@ -46,6 +50,7 @@ const defaultData: AppData = {
     {
       id: 5, name: 'Security Audit Q2', description: 'Quarterly security audit including penetration testing, code review, and compliance checks.',
       status: 'completed', progress: 100, dueDate: 'May 1', priority: 'high', createdAt: '2026-04-01', updatedAt: '2026-05-01', tags: ['Security'], team: [4, 5],
+      notes: [], dploys: [], agentTasks: [],
       tasks: [
         { id: 13, title: 'Penetration testing', assignee: 'Diana', status: 'done', priority: 'high', dueDate: 'Apr 20', notes: 'All critical vulnerabilities patched.', createdAt: '2026-04-01', projectId: 5 },
         { id: 14, title: 'Compliance review', assignee: 'Eve', status: 'done', priority: 'high', dueDate: 'May 1', notes: 'SOC2 compliance verified.', createdAt: '2026-04-05', projectId: 5 },
@@ -54,6 +59,7 @@ const defaultData: AppData = {
     {
       id: 6, name: 'Customer Portal', description: 'Self-service customer portal with ticket management, knowledge base, and live chat.',
       status: 'active', progress: 45, dueDate: 'Jun 30', priority: 'low', createdAt: '2026-02-15', updatedAt: '2026-05-22', tags: ['Frontend', 'UX'], team: [1, 2],
+      notes: [], dploys: [], agentTasks: [],
       tasks: [
         { id: 15, title: 'Ticket management UI', assignee: 'Alice', status: 'done', priority: 'medium', dueDate: 'May 30', notes: 'Built with React Table.', createdAt: '2026-03-01', projectId: 6 },
         { id: 16, title: 'Knowledge base search', assignee: 'Bob', status: 'in-progress', priority: 'low', dueDate: 'Jun 15', notes: 'Using Elasticsearch.', createdAt: '2026-03-15', projectId: 6 },
@@ -62,6 +68,7 @@ const defaultData: AppData = {
     {
       id: 7, name: 'DevOps Pipeline', description: 'Automated CI/CD pipeline with Docker containerization and Kubernetes orchestration.',
       status: 'active', progress: 55, dueDate: 'Jun 5', priority: 'medium', createdAt: '2026-01-20', updatedAt: '2026-05-18', tags: ['DevOps', 'Infrastructure'], team: [3, 4],
+      notes: [], dploys: [], agentTasks: [],
       tasks: [
         { id: 17, title: 'Docker setup', assignee: 'Charlie', status: 'done', priority: 'high', dueDate: 'Apr 10', notes: 'Multi-stage builds configured.', createdAt: '2026-01-25', projectId: 7 },
         { id: 18, title: 'Kubernetes deployment', assignee: 'Diana', status: 'in-progress', priority: 'high', dueDate: 'May 20', notes: 'Helm charts in progress.', createdAt: '2026-02-10', projectId: 7 },
@@ -70,6 +77,7 @@ const defaultData: AppData = {
     {
       id: 8, name: 'E-Commerce Platform', description: 'Full-featured e-commerce platform with payment processing, inventory management, and analytics.',
       status: 'active', progress: 40, dueDate: 'Aug 20', priority: 'high', createdAt: '2026-03-10', updatedAt: '2026-05-20', tags: ['Full Stack', 'E-Commerce'], team: [1, 2, 3, 4, 5],
+      notes: [], dploys: [], agentTasks: [],
       tasks: [
         { id: 19, title: 'Payment gateway integration', assignee: 'Bob', status: 'in-progress', priority: 'high', dueDate: 'Jun 30', notes: 'Stripe integration in progress.', createdAt: '2026-03-20', projectId: 8 },
         { id: 20, title: 'Inventory management', assignee: 'Diana', status: 'todo', priority: 'high', dueDate: 'Jul 15', notes: '', createdAt: '2026-04-01', projectId: 8 },
@@ -117,7 +125,7 @@ const defaultData: AppData = {
     userEmail: 'john@projectagent.io',
     notificationsEnabled: true,
   },
-  nextId: { projects: 9, tasks: 23, notes: 4, team: 6, files: 6, messages: 6, notifications: 5 },
+  nextId: { projects: 9, tasks: 23, notes: 4, team: 6, files: 6, messages: 6, notifications: 5, projectNotes: 1, dploys: 1, agentTasks: 1 },
 };
 
 // Load from localStorage
@@ -161,7 +169,7 @@ export function getProject(id: number): Project | undefined {
   return data.projects.find((p) => p.id === id);
 }
 
-export function addProject(project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'progress' | 'tasks'>): Project {
+export function addProject(project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'progress' | 'tasks' | 'notes' | 'dploys' | 'agentTasks'>): Project {
   const newProject: Project = {
     ...project,
     id: data.nextId.projects++,
@@ -169,6 +177,9 @@ export function addProject(project: Omit<Project, 'id' | 'createdAt' | 'updatedA
     updatedAt: new Date().toISOString(),
     progress: 0,
     tasks: [],
+    notes: [],
+    dploys: [],
+    agentTasks: [],
   };
   data.projects.push(newProject);
   saveData();

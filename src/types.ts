@@ -14,7 +14,10 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
   tags: string[];
-  team: number[]; // team member ids
+  team: number[];
+  notes: ProjectNote[];
+  dploys: DPloy[];
+  agentTasks: AgentTask[];
 }
 
 export interface TaskItem {
@@ -25,6 +28,43 @@ export interface TaskItem {
   priority: 'high' | 'medium' | 'low';
   dueDate: string;
   notes: string;
+  createdAt: string;
+  projectId: number;
+}
+
+export interface ProjectNote {
+  id: number;
+  title: string;
+  content: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  pinned: boolean;
+  color: string;
+  linkedNoteIds: number[];
+}
+
+export interface DPloy {
+  id: number;
+  name: string;
+  description: string;
+  status: 'active' | 'idle' | 'completed' | 'error';
+  launchDate: string;
+  lastOperation: string;
+  estimatedCompletion: string;
+  projectId: number;
+}
+
+export interface AgentTask {
+  id: number;
+  title: string;
+  description: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'failed';
+  priority: 'high' | 'medium' | 'low';
+  assignedTo: string;
+  schedule: string;
+  recurring: boolean;
+  recurringInterval: string;
   createdAt: string;
   projectId: number;
 }
@@ -95,5 +135,5 @@ export interface AppData {
   messages: Message[];
   notifications: Notification[];
   settings: AppSettings;
-  nextId: { projects: number; tasks: number; notes: number; team: number; files: number; messages: number; notifications: number };
+  nextId: { projects: number; tasks: number; notes: number; team: number; files: number; messages: number; notifications: number; projectNotes: number; dploys: number; agentTasks: number };
 }
