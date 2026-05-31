@@ -5,6 +5,7 @@ import ProjectGrid from './components/ProjectGrid';
 import ProjectHome from './components/ProjectHome';
 import DashboardView from './components/DashboardView';
 import NotesView from './components/NotesView';
+import KnowledgeBase from './components/KnowledgeBase';
 import FilesView from './components/FilesView';
 import TeamView from './components/TeamView';
 import MessagingView from './components/MessagingView';
@@ -13,6 +14,7 @@ import AIPanel from './components/AIPanel';
 import NewProjectModal from './components/NewProjectModal';
 import NotificationPanel from './components/NotificationPanel';
 import SearchOverlay from './components/SearchOverlay';
+import ErrorBoundary from './components/ErrorBoundary';
 import type { Project } from './types';
 import { getProjects, updateProject, addProject, deleteProject, archiveProject, getSettings, updateSettings, getUnreadNotificationCount } from './services/store';
 
@@ -160,11 +162,12 @@ const App: React.FC = () => {
     }
 
     if (activeView === 'dashboard') return <DashboardView key={refreshKey} projects={projects} />;
-    if (activeView === 'notes') return <NotesView key={refreshKey} />;
-    if (activeView === 'files') return <FilesView key={refreshKey} />;
-    if (activeView === 'team') return <TeamView key={refreshKey} />;
-    if (activeView === 'messaging') return <MessagingView key={refreshKey} />;
-    if (activeView === 'base') return <BaseView key={refreshKey} darkMode={darkMode} onToggleDarkMode={handleToggleDarkMode} />;
+    if (activeView === 'notes') return <ErrorBoundary name="Notes"><NotesView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'kb') return <ErrorBoundary name="Knowledge Base"><KnowledgeBase key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'files') return <ErrorBoundary name="Files"><FilesView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'team') return <ErrorBoundary name="Team"><TeamView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'messaging') return <ErrorBoundary name="Messaging"><MessagingView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'base') return <ErrorBoundary name="Settings"><BaseView key={refreshKey} darkMode={darkMode} onToggleDarkMode={handleToggleDarkMode} /></ErrorBoundary>;
     if (activeView === 'task') {
       return (
         <div className="card-grid-view">
