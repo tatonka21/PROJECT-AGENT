@@ -15,6 +15,7 @@ const navItems = [
   { id: 'doctools', icon: '📖', label: 'Docs' },
   { id: 'agenttab', icon: '🧠', label: 'Agent' },
   { id: 'multiagent', icon: '👥', label: 'Multi' },
+  { id: 'agentmonitor', icon: '📊', label: 'Monitr' },
   { id: 'files', icon: '📂', label: 'Files' },
   { id: 'team', icon: '👥', label: 'Team' },
   { id: 'messaging', icon: '💬', label: 'Chat' },

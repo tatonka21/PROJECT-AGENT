@@ -16,6 +16,7 @@ import AgentTab from './components/AgentTab';
 import ListPage from './components/ListPage';
 import DocToolsPage from './components/DocToolsPage';
 import MultiAgentPanel from './components/MultiAgentPanel';
+import AgentMonitor from './components/AgentMonitor';
 import AccountView from './components/AccountView';
 import ApiView from './components/ApiView';
 import GoalsView from './components/GoalsView';
@@ -187,6 +188,7 @@ const App: React.FC = () => {
     if (activeView === 'scrape') return <ErrorBoundary name="Scrape"><ScrapePage key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'agenttab') return <ErrorBoundary name="Agent Tab"><AgentTab key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'list') return <ErrorBoundary name="List Builder"><ListPage key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'agentmonitor') return <ErrorBoundary name="Agent Monitor"><AgentMonitor key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'multiagent') return <ErrorBoundary name="Multi-Agent System"><MultiAgentPanel key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'doctools') return <ErrorBoundary name="Documentation & Tools"><DocToolsPage key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'crm') return <ErrorBoundary name="CRM"><CrmView key={refreshKey} /></ErrorBoundary>;
