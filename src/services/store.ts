@@ -1,7 +1,7 @@
 // ============================================================
 // Enterprise Data Store — localStorage-backed state management
 // ============================================================
-import type { AppData, Project, TaskItem, Note, TeamMember, FileItem, Message, Notification, AppSettings } from '../types';
+import type { AppData, Project, TaskItem, Note, TeamMember, FileItem, Message, Notification, AppSettings, GitHubRepo, GitHubIssue, GitHubPR, SlackChannel, SlackMessage, LinearIssue, LinearTeam, LinearCycle, JiraIssue, JiraSprint, CICDPipeline, EmailMessage, CalendarEvent } from '../types';
 
 const STORAGE_KEY = 'project-agent-data';
 
@@ -125,7 +125,27 @@ const defaultData: AppData = {
     userEmail: 'john@projectagent.io',
     notificationsEnabled: true,
   },
-  nextId: { projects: 9, tasks: 23, notes: 4, team: 6, files: 6, messages: 6, notifications: 5, projectNotes: 1, dploys: 1, agentTasks: 1 },
+  // External integrations
+  githubRepos: [
+    { id: 1, name: 'PROJECT-AGENT', fullName: 'tatonka21/PROJECT-AGENT', description: 'Enterprise Project Management App with AI Agent', url: 'https://github.com/tatonka21/PROJECT-AGENT', defaultBranch: 'master', stars: 1, language: 'TypeScript', topics: ['project-management', 'ai', 'agent'], connectedProjectIds: [1] },
+  ],
+  githubIssues: [],
+  githubPRs: [],
+  slackChannels: [
+    { id: 1, name: 'general', purpose: 'General team discussion', memberCount: 5, isArchived: false },
+    { id: 2, name: 'dev', purpose: 'Development updates and discussions', memberCount: 4, isArchived: false },
+    { id: 3, name: 'design', purpose: 'Design feedback and reviews', memberCount: 2, isArchived: false },
+  ],
+  slackMessages: [],
+  linearIssues: [],
+  linearTeams: [],
+  linearCycles: [],
+  jiraIssues: [],
+  jiraSprints: [],
+  cicdPipelines: [],
+  emails: [],
+  calendarEvents: [],
+  nextId: { projects: 9, tasks: 23, notes: 4, team: 6, files: 6, messages: 6, notifications: 5, projectNotes: 1, dploys: 1, agentTasks: 1, githubRepos: 2, githubIssues: 1, githubPRs: 1, slackChannels: 4, slackMessages: 1, linearIssues: 1, linearTeams: 1, linearCycles: 1, jiraIssues: 1, jiraSprints: 1, cicdPipelines: 1, emails: 1, calendarEvents: 1 },
 };
 
 // Load from localStorage
@@ -385,6 +405,115 @@ export function searchAll(query: string): { projects: Project[]; tasks: TaskItem
     notes: data.notes.filter((n) => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)),
     files: data.files.filter((f) => f.name.toLowerCase().includes(q)),
   };
+}
+
+// ============================================================
+// GitHub SDK Wrapper
+// ============================================================
+export function getGitHubRepos(): GitHubRepo[] { return data.githubRepos; }
+export function getGitHubRepo(id: number): GitHubRepo | undefined { return data.githubRepos.find(r => r.id === id); }
+export function addGitHubRepo(repo: Omit<GitHubRepo, 'id'>): GitHubRepo {
+  const r: GitHubRepo = { ...repo, id: data.nextId.githubRepos++ }; data.githubRepos.push(r); saveData(); return r;
+}
+export function getGitHubIssues(): GitHubIssue[] { return data.githubIssues; }
+export function addGitHubIssue(issue: Omit<GitHubIssue, 'id' | 'createdAt'>): GitHubIssue {
+  const i: GitHubIssue = { ...issue, id: data.nextId.githubIssues++, createdAt: new Date().toISOString() }; data.githubIssues.push(i); saveData(); return i;
+}
+export function updateGitHubIssue(id: number, updates: Partial<GitHubIssue>): GitHubIssue | undefined {
+  const idx = data.githubIssues.findIndex(i => i.id === id); if (idx === -1) return undefined;
+  data.githubIssues[idx] = { ...data.githubIssues[idx], ...updates }; saveData(); return data.githubIssues[idx];
+}
+export function getGitHubPRs(): GitHubPR[] { return data.githubPRs; }
+export function addGitHubPR(pr: Omit<GitHubPR, 'id' | 'createdAt'>): GitHubPR {
+  const p: GitHubPR = { ...pr, id: data.nextId.githubPRs++, createdAt: new Date().toISOString() }; data.githubPRs.push(p); saveData(); return p;
+}
+export function updateGitHubPR(id: number, updates: Partial<GitHubPR>): GitHubPR | undefined {
+  const idx = data.githubPRs.findIndex(p => p.id === id); if (idx === -1) return undefined;
+  data.githubPRs[idx] = { ...data.githubPRs[idx], ...updates }; saveData(); return data.githubPRs[idx];
+}
+
+// ============================================================
+// Slack SDK Wrapper
+// ============================================================
+export function getSlackChannels(): SlackChannel[] { return data.slackChannels; }
+export function addSlackChannel(ch: Omit<SlackChannel, 'id'>): SlackChannel {
+  const c: SlackChannel = { ...ch, id: data.nextId.slackChannels++ }; data.slackChannels.push(c); saveData(); return c;
+}
+export function getSlackMessages(): SlackMessage[] { return data.slackMessages; }
+export function addSlackMessage(msg: Omit<SlackMessage, 'id' | 'timestamp'>): SlackMessage {
+  const m: SlackMessage = { ...msg, id: data.nextId.slackMessages++, timestamp: new Date().toISOString() }; data.slackMessages.push(m); saveData(); return m;
+}
+
+// ============================================================
+// Linear SDK Wrapper
+// ============================================================
+export function getLinearIssues(): LinearIssue[] { return data.linearIssues; }
+export function addLinearIssue(issue: Omit<LinearIssue, 'id' | 'createdAt'>): LinearIssue {
+  const i: LinearIssue = { ...issue, id: data.nextId.linearIssues++, createdAt: new Date().toISOString() }; data.linearIssues.push(i); saveData(); return i;
+}
+export function updateLinearIssue(id: number, updates: Partial<LinearIssue>): LinearIssue | undefined {
+  const idx = data.linearIssues.findIndex(i => i.id === id); if (idx === -1) return undefined;
+  data.linearIssues[idx] = { ...data.linearIssues[idx], ...updates }; saveData(); return data.linearIssues[idx];
+}
+export function getLinearTeams(): LinearTeam[] { return data.linearTeams; }
+export function addLinearTeam(team: Omit<LinearTeam, 'id'>): LinearTeam {
+  const t: LinearTeam = { ...team, id: data.nextId.linearTeams++ }; data.linearTeams.push(t); saveData(); return t;
+}
+export function getLinearCycles(): LinearCycle[] { return data.linearCycles; }
+export function addLinearCycle(cycle: Omit<LinearCycle, 'id'>): LinearCycle {
+  const c: LinearCycle = { ...cycle, id: data.nextId.linearCycles++ }; data.linearCycles.push(c); saveData(); return c;
+}
+
+// ============================================================
+// Jira SDK Wrapper
+// ============================================================
+export function getJiraIssues(): JiraIssue[] { return data.jiraIssues; }
+export function addJiraIssue(issue: Omit<JiraIssue, 'id' | 'createdAt'>): JiraIssue {
+  const i: JiraIssue = { ...issue, id: data.nextId.jiraIssues++, createdAt: new Date().toISOString() }; data.jiraIssues.push(i); saveData(); return i;
+}
+export function updateJiraIssue(id: number, updates: Partial<JiraIssue>): JiraIssue | undefined {
+  const idx = data.jiraIssues.findIndex(i => i.id === id); if (idx === -1) return undefined;
+  data.jiraIssues[idx] = { ...data.jiraIssues[idx], ...updates }; saveData(); return data.jiraIssues[idx];
+}
+export function getJiraSprints(): JiraSprint[] { return data.jiraSprints; }
+export function addJiraSprint(sprint: Omit<JiraSprint, 'id'>): JiraSprint {
+  const s: JiraSprint = { ...sprint, id: data.nextId.jiraSprints++ }; data.jiraSprints.push(s); saveData(); return s;
+}
+
+// ============================================================
+// CI/CD SDK Wrapper
+// ============================================================
+export function getCICDPipelines(): CICDPipeline[] { return data.cicdPipelines; }
+export function addCICDPipeline(pipeline: Omit<CICDPipeline, 'id'>): CICDPipeline {
+  const p: CICDPipeline = { ...pipeline, id: data.nextId.cicdPipelines++ }; data.cicdPipelines.push(p); saveData(); return p;
+}
+export function updateCICDPipeline(id: number, updates: Partial<CICDPipeline>): CICDPipeline | undefined {
+  const idx = data.cicdPipelines.findIndex(p => p.id === id); if (idx === -1) return undefined;
+  data.cicdPipelines[idx] = { ...data.cicdPipelines[idx], ...updates }; saveData(); return data.cicdPipelines[idx];
+}
+
+// ============================================================
+// Email SDK Wrapper
+// ============================================================
+export function getEmails(): EmailMessage[] { return data.emails; }
+export function addEmail(email: Omit<EmailMessage, 'id'>): EmailMessage {
+  const e: EmailMessage = { ...email, id: data.nextId.emails++ }; data.emails.push(e); saveData(); return e;
+}
+export function updateEmail(id: number, updates: Partial<EmailMessage>): EmailMessage | undefined {
+  const idx = data.emails.findIndex(e => e.id === id); if (idx === -1) return undefined;
+  data.emails[idx] = { ...data.emails[idx], ...updates }; saveData(); return data.emails[idx];
+}
+
+// ============================================================
+// Calendar SDK Wrapper
+// ============================================================
+export function getCalendarEvents(): CalendarEvent[] { return data.calendarEvents; }
+export function addCalendarEvent(event: Omit<CalendarEvent, 'id'>): CalendarEvent {
+  const e: CalendarEvent = { ...event, id: data.nextId.calendarEvents++ }; data.calendarEvents.push(e); saveData(); return e;
+}
+export function updateCalendarEvent(id: number, updates: Partial<CalendarEvent>): CalendarEvent | undefined {
+  const idx = data.calendarEvents.findIndex(e => e.id === id); if (idx === -1) return undefined;
+  data.calendarEvents[idx] = { ...data.calendarEvents[idx], ...updates }; saveData(); return data.calendarEvents[idx];
 }
 
 // Reset

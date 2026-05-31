@@ -2,7 +2,7 @@
 // Agent Tool Registry — Every app feature exposed as an API
 // The AI agent uses the exact same APIs as human users.
 // ============================================================
-import type { Project, TaskItem, Note, TeamMember, FileItem, Message, ProjectNote, DPloy, AgentTask } from '../types';
+import type { Project, TaskItem, Note, TeamMember, FileItem, Message, ProjectNote, DPloy, AgentTask, GitHubRepo, GitHubIssue, GitHubPR, SlackChannel, SlackMessage, LinearIssue, LinearTeam, LinearCycle, JiraIssue, JiraSprint, CICDPipeline, EmailMessage, CalendarEvent } from '../types';
 import * as store from './store';
 
 // ============================================================
@@ -16,7 +16,7 @@ export interface AgentTool {
   permission: PermissionLevel;
   parameters: { name: string; type: string; required: boolean; description: string }[];
   execute: (params: Record<string, any>) => any;
-  category: 'project' | 'task' | 'note' | 'team' | 'file' | 'message' | 'notification' | 'memory' | 'workflow' | 'scrape' | 'list' | 'write' | 'system';
+  category: 'project' | 'task' | 'note' | 'team' | 'file' | 'message' | 'notification' | 'memory' | 'workflow' | 'scrape' | 'list' | 'write' | 'system' | 'github' | 'slack' | 'linear' | 'jira' | 'cicd' | 'email' | 'calendar';
 }
 
 // ============================================================
@@ -316,19 +316,16 @@ export const toolRegistry: AgentTool[] = [
     execute: (params) => {
       const q = params.query.toLowerCase();
       const results: string[] = [];
-      // Search projects
       store.getProjects().forEach((p: Project) => {
         if (p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q)) {
           results.push(`[Project] ${p.name}: ${p.description.slice(0, 100)}`);
         }
       });
-      // Search notes
       store.getNotes().forEach((n: Note) => {
         if (n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)) {
           results.push(`[Note] ${n.title}: ${n.content.slice(0, 100)}`);
         }
       });
-      // Search messages
       store.getMessages().forEach((m: Message) => {
         if (m.content.toLowerCase().includes(q)) {
           results.push(`[Message from ${m.sender}] ${m.content.slice(0, 100)}`);
@@ -337,6 +334,272 @@ export const toolRegistry: AgentTool[] = [
       return results.slice(0, 20);
     },
     category: 'memory',
+  },
+
+  // ---- GitHub SDK Tools ----
+  {
+    name: 'get_github_repos',
+    description: 'List all connected GitHub repositories',
+    permission: 'read', parameters: [], execute: () => store.getGitHubRepos(), category: 'github',
+  },
+  {
+    name: 'add_github_repo',
+    description: 'Connect a GitHub repository',
+    permission: 'write',
+    parameters: [
+      { name: 'name', type: 'string', required: true, description: 'Repo name' },
+      { name: 'fullName', type: 'string', required: true, description: 'Full name (owner/repo)' },
+      { name: 'description', type: 'string', required: false, description: 'Description' },
+    ],
+    execute: (params) => store.addGitHubRepo({
+      name: params.name, fullName: params.fullName, description: params.description || '',
+      url: `https://github.com/${params.fullName}`, defaultBranch: 'main', stars: 0, language: '', topics: [], connectedProjectIds: [],
+    }),
+    category: 'github',
+  },
+  {
+    name: 'create_github_issue',
+    description: 'Create a GitHub issue linked to a task',
+    permission: 'write',
+    parameters: [
+      { name: 'title', type: 'string', required: true, description: 'Issue title' },
+      { name: 'body', type: 'string', required: false, description: 'Issue body' },
+      { name: 'repoId', type: 'number', required: true, description: 'GitHub repo ID' },
+      { name: 'assignee', type: 'string', required: false, description: 'Assignee' },
+      { name: 'labels', type: 'string', required: false, description: 'Comma-separated labels' },
+      { name: 'linkedTaskIds', type: 'string', required: false, description: 'Comma-separated task IDs' },
+    ],
+    execute: (params) => store.addGitHubIssue({
+      title: params.title, body: params.body || '', state: 'open', assignee: params.assignee || '',
+      labels: params.labels ? params.labels.split(',').map((s: string) => s.trim()) : [],
+      milestone: '', repoId: params.repoId,
+      linkedTaskIds: params.linkedTaskIds ? params.linkedTaskIds.split(',').map(Number) : [],
+    }),
+    category: 'github',
+  },
+  {
+    name: 'close_github_issue',
+    description: 'Close a GitHub issue',
+    permission: 'write',
+    parameters: [
+      { name: 'issueId', type: 'number', required: true, description: 'GitHub issue ID' },
+    ],
+    execute: (params) => store.updateGitHubIssue(params.issueId, { state: 'closed' }),
+    category: 'github',
+  },
+  {
+    name: 'create_github_pr',
+    description: 'Create a GitHub pull request',
+    permission: 'write',
+    parameters: [
+      { name: 'title', type: 'string', required: true, description: 'PR title' },
+      { name: 'body', type: 'string', required: false, description: 'PR description' },
+      { name: 'sourceBranch', type: 'string', required: true, description: 'Source branch' },
+      { name: 'targetBranch', type: 'string', required: true, description: 'Target branch' },
+      { name: 'repoId', type: 'number', required: true, description: 'Repo ID' },
+    ],
+    execute: (params) => store.addGitHubPR({
+      title: params.title, body: params.body || '', state: 'open',
+      sourceBranch: params.sourceBranch, targetBranch: params.targetBranch,
+      author: 'Agent', reviewers: [], repoId: params.repoId, linkedWorkflowId: 0,
+    }),
+    category: 'github',
+  },
+  {
+    name: 'merge_github_pr',
+    description: 'Merge a pull request (requires admin)',
+    permission: 'admin',
+    parameters: [{ name: 'prId', type: 'number', required: true, description: 'PR ID to merge' }],
+    execute: (params) => store.updateGitHubPR(params.prId, { state: 'merged' }),
+    category: 'github',
+  },
+
+  // ---- Slack SDK Tools ----
+  {
+    name: 'get_slack_channels',
+    description: 'List all Slack channels',
+    permission: 'read', parameters: [], execute: () => store.getSlackChannels(), category: 'slack',
+  },
+  {
+    name: 'create_slack_channel',
+    description: 'Create a Slack channel',
+    permission: 'write',
+    parameters: [
+      { name: 'name', type: 'string', required: true, description: 'Channel name' },
+      { name: 'purpose', type: 'string', required: false, description: 'Channel purpose' },
+    ],
+    execute: (params) => store.addSlackChannel({ name: params.name, purpose: params.purpose || '', memberCount: 0, isArchived: false }),
+    category: 'slack',
+  },
+  {
+    name: 'send_slack_message',
+    description: 'Send a message to a Slack channel',
+    permission: 'write',
+    parameters: [
+      { name: 'channelId', type: 'number', required: true, description: 'Channel ID' },
+      { name: 'content', type: 'string', required: true, description: 'Message content' },
+      { name: 'sender', type: 'string', required: true, description: 'Sender name' },
+    ],
+    execute: (params) => store.addSlackMessage({
+      channelId: params.channelId, sender: params.sender, content: params.content,
+      threadTs: '', pinned: false,
+    }),
+    category: 'slack',
+  },
+
+  // ---- Linear SDK Tools ----
+  {
+    name: 'get_linear_issues',
+    description: 'List all Linear issues',
+    permission: 'read', parameters: [], execute: () => store.getLinearIssues(), category: 'linear',
+  },
+  {
+    name: 'create_linear_issue',
+    description: 'Create a Linear issue linked to tasks',
+    permission: 'write',
+    parameters: [
+      { name: 'title', type: 'string', required: true, description: 'Issue title' },
+      { name: 'description', type: 'string', required: false, description: 'Description' },
+      { name: 'priority', type: 'number', required: false, description: 'Priority 0-3' },
+      { name: 'teamId', type: 'number', required: true, description: 'Team ID' },
+    ],
+    execute: (params) => store.addLinearIssue({
+      title: params.title, description: params.description || '', state: 'backlog',
+      priority: params.priority || 1, assignee: '', teamId: params.teamId, projectId: 0, cycleId: 0,
+      linkedTaskIds: [],
+    }),
+    category: 'linear',
+  },
+  {
+    name: 'get_linear_teams',
+    description: 'List Linear teams',
+    permission: 'read', parameters: [], execute: () => store.getLinearTeams(), category: 'linear',
+  },
+  {
+    name: 'get_linear_cycles',
+    description: 'List Linear cycles',
+    permission: 'read', parameters: [], execute: () => store.getLinearCycles(), category: 'linear',
+  },
+
+  // ---- Jira SDK Tools ----
+  {
+    name: 'get_jira_issues',
+    description: 'List all Jira issues',
+    permission: 'read', parameters: [], execute: () => store.getJiraIssues(), category: 'jira',
+  },
+  {
+    name: 'create_jira_issue',
+    description: 'Create a Jira issue',
+    permission: 'write',
+    parameters: [
+      { name: 'title', type: 'string', required: true, description: 'Issue title' },
+      { name: 'type', type: 'string', required: false, description: 'story, bug, task, epic' },
+      { name: 'projectKey', type: 'string', required: true, description: 'Project key' },
+      { name: 'assignee', type: 'string', required: false, description: 'Assignee name' },
+      { name: 'priority', type: 'string', required: false, description: 'High, Medium, Low' },
+    ],
+    execute: (params) => store.addJiraIssue({
+      key: `${params.projectKey}-${Date.now()}`.slice(-10), title: params.title,
+      type: params.type || 'task', status: 'To Do', priority: params.priority || 'Medium',
+      assignee: params.assignee || '', sprint: '', projectKey: params.projectKey, linkedTaskIds: [],
+    }),
+    category: 'jira',
+  },
+  {
+    name: 'update_jira_issue',
+    description: 'Update Jira issue status or assignment',
+    permission: 'write',
+    parameters: [
+      { name: 'issueId', type: 'number', required: true, description: 'Jira issue ID' },
+      { name: 'status', type: 'string', required: false, description: 'New status' },
+      { name: 'assignee', type: 'string', required: false, description: 'New assignee' },
+    ],
+    execute: (params) => store.updateJiraIssue(params.issueId, params),
+    category: 'jira',
+  },
+
+  // ---- CI/CD SDK Tools ----
+  {
+    name: 'get_cicd_pipelines',
+    description: 'List all CI/CD pipelines',
+    permission: 'read', parameters: [], execute: () => store.getCICDPipelines(), category: 'cicd',
+  },
+  {
+    name: 'run_cicd_pipeline',
+    description: 'Trigger a CI/CD pipeline run',
+    permission: 'write',
+    parameters: [
+      { name: 'name', type: 'string', required: true, description: 'Pipeline name' },
+      { name: 'branch', type: 'string', required: true, description: 'Git branch' },
+      { name: 'projectId', type: 'number', required: false, description: 'Associated project ID' },
+    ],
+    execute: (params) => store.addCICDPipeline({
+      name: params.name, status: 'running', branch: params.branch, commitSha: 'HEAD',
+      startedAt: new Date().toISOString(), finishedAt: '', duration: '', stages: ['build', 'test', 'deploy'],
+      projectId: params.projectId || 1, linkedDeployId: 0,
+    }),
+    category: 'cicd',
+  },
+  {
+    name: 'update_cicd_pipeline',
+    description: 'Update pipeline status',
+    permission: 'write',
+    parameters: [
+      { name: 'pipelineId', type: 'number', required: true, description: 'Pipeline ID' },
+      { name: 'status', type: 'string', required: true, description: 'running, succeeded, failed, pending' },
+    ],
+    execute: (params) => store.updateCICDPipeline(params.pipelineId, { status: params.status }),
+    category: 'cicd',
+  },
+
+  // ---- Email SDK Tools ----
+  {
+    name: 'get_emails',
+    description: 'List sent/draft emails',
+    permission: 'read', parameters: [], execute: () => store.getEmails(), category: 'email',
+  },
+  {
+    name: 'send_email',
+    description: 'Send an email to recipients',
+    permission: 'write',
+    parameters: [
+      { name: 'to', type: 'string', required: true, description: 'Comma-separated recipients' },
+      { name: 'subject', type: 'string', required: true, description: 'Email subject' },
+      { name: 'body', type: 'string', required: true, description: 'Email body' },
+      { name: 'cc', type: 'string', required: false, description: 'Comma-separated CC' },
+    ],
+    execute: (params) => store.addEmail({
+      to: params.to.split(',').map((s: string) => s.trim()),
+      cc: params.cc ? params.cc.split(',').map((s: string) => s.trim()) : [],
+      bcc: [], subject: params.subject, body: params.body, status: 'sent',
+      sentAt: new Date().toISOString(), templateId: '',
+    }),
+    category: 'email',
+  },
+
+  // ---- Calendar SDK Tools ----
+  {
+    name: 'get_calendar_events',
+    description: 'List calendar events',
+    permission: 'read', parameters: [], execute: () => store.getCalendarEvents(), category: 'calendar',
+  },
+  {
+    name: 'schedule_event',
+    description: 'Schedule a calendar event',
+    permission: 'write',
+    parameters: [
+      { name: 'title', type: 'string', required: true, description: 'Event title' },
+      { name: 'startTime', type: 'string', required: true, description: 'Start time ISO string' },
+      { name: 'endTime', type: 'string', required: true, description: 'End time ISO string' },
+      { name: 'attendees', type: 'string', required: false, description: 'Comma-separated attendees' },
+      { name: 'description', type: 'string', required: false, description: 'Event description' },
+    ],
+    execute: (params) => store.addCalendarEvent({
+      title: params.title, description: params.description || '', startTime: params.startTime,
+      endTime: params.endTime, attendees: params.attendees ? params.attendees.split(',').map((s: string) => s.trim()) : [],
+      location: '', recurrence: '', projectId: 0, linkedMeetingIds: [],
+    }),
+    category: 'calendar',
   },
 ];
 
