@@ -1,75 +1,49 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { sendChatMessage } from '../services/ollama';
-
-interface Message {
-  id: number;
-  text: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-}
+// ============================================================
+// AI Panel (Toolbar Agent) — Shared conversation with main Agent
+// Uses the same UnifiedAgent engine, memory, and tools
+// ============================================================
+import React, { useState, useEffect, useCallback } from 'react';
+import { getSharedMessages, addSharedMessage, subscribeToMessages, processWithAgent, clearSharedMessages, type AgentMessage } from './UnifiedAgent';
 
 const AIPanel: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: "Hello! I'm your AI project assistant. I can help you manage projects, create tasks, generate reports, and more. What would you like to do?",
-      sender: 'ai',
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<AgentMessage[]>(getSharedMessages());
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const unsub = subscribeToMessages(() => {
+      setMessages([...getSharedMessages()]);
+    });
+    return unsub;
+  }, []);
 
-  const handleSend = async (text?: string) => {
-    const messageText = text || input.trim();
-    if (!messageText) return;
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || processing) return;
 
-    const userMsg: Message = {
-      id: messages.length + 1,
-      text: messageText,
-      sender: 'user',
-      timestamp: new Date(),
+    const userMsg: AgentMessage = {
+      id: Date.now(),
+      role: 'user',
+      content: input,
+      timestamp: new Date().toISOString(),
     };
-    setMessages((prev) => [...prev, userMsg]);
+
+    addSharedMessage(userMsg);
     setInput('');
-    setIsTyping(true);
+    setProcessing(true);
 
     try {
-      const chatMessages = messages
-        .filter((m) => m.sender !== 'ai' || m.id === 1)
-        .map((m) => ({
-          role: m.sender === 'ai' ? 'assistant' : 'user',
-          content: m.text,
-        }));
-
-      chatMessages.push({ role: 'user', content: messageText });
-
-      const response = await sendChatMessage(chatMessages);
-
-      const aiMsg: Message = {
-        id: messages.length + 2,
-        text: response,
-        sender: 'ai',
-        timestamp: new Date(),
+      await processWithAgent(input);
+    } catch (e) {
+      const errorMsg: AgentMessage = {
+        id: Date.now() + 1,
+        role: 'system',
+        content: 'Sorry, I encountered an error processing your request. Please try again.',
+        timestamp: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, aiMsg]);
-    } catch (err) {
-      const errorMsg: Message = {
-        id: messages.length + 2,
-        text: 'An error occurred while processing your request. Please try again.',
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMsg]);
-    } finally {
-      setIsTyping(false);
+      addSharedMessage(errorMsg);
     }
-  };
+    setProcessing(false);
+  }, [input, processing]);
 
   return (
     <div className="panel ai-panel">
@@ -78,24 +52,24 @@ const AIPanel: React.FC = () => {
           <span className="ai-badge">AI</span>
           Agent Assistant
         </h2>
-        <button className="btn-icon" title="Settings">⚙️</button>
+        <button className="btn-icon" title="Clear conversation" onClick={clearSharedMessages}>🗑️</button>
       </div>
 
       <div className="ai-messages">
         {messages.map((msg) => (
-          <div key={msg.id} className={`message ${msg.sender}`}>
+          <div key={msg.id} className={`message ${msg.role === 'user' ? 'user' : ''}`}>
             <div className="message-avatar">
-              {msg.sender === 'ai' ? '🤖' : '👤'}
+              {msg.role === 'user' ? '👤' : '🤖'}
             </div>
             <div className="message-content">
-              <div className="message-bubble">{msg.text}</div>
+              <div className="message-bubble">{msg.content}</div>
               <span className="message-time">
-                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
           </div>
         ))}
-        {isTyping && (
+        {processing && (
           <div className="message ai">
             <div className="message-avatar">🤖</div>
             <div className="message-content">
@@ -105,7 +79,6 @@ const AIPanel: React.FC = () => {
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       <div className="ai-input-area">
@@ -116,11 +89,12 @@ const AIPanel: React.FC = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            disabled={processing}
           />
           <button
             className="send-btn"
-            onClick={() => handleSend()}
-            disabled={!input.trim() || isTyping}
+            onClick={handleSend}
+            disabled={!input.trim() || processing}
           >
             ➤
           </button>

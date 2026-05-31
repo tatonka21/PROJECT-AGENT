@@ -1454,6 +1454,47 @@
 /* ============================================================
    ANIMATIONS
    ============================================================ */
+/* ============================================================
+   UNIFIED AGENT (Main + Toolbar shared)
+   ============================================================ */
+.unified-agent { display: flex; flex-direction: column; height: 100%; }
+.unified-agent.toolbar { border-left: var(--glass-border); }
+.agent-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: var(--glass-border); }
+.agent-header h2 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.agent-header-actions { display: flex; gap: 4px; }
+
+.agent-tools-panel { padding: 12px 16px; border-bottom: var(--glass-border); background: rgba(0,0,0,0.02); max-height: 200px; overflow-y: auto; }
+.agent-tools-panel h4 { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+.agent-tools-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+.agent-tool-chip { display: flex; align-items: center; gap: 4px; padding: 3px 8px; background: var(--glass-bg); border: var(--glass-border); border-radius: 6px; font-size: 11px; cursor: default; }
+.agent-tool-chip .tool-name { font-weight: 500; color: var(--text-primary); }
+.agent-tool-chip .tool-permission { font-size: 9px; padding: 1px 5px; border-radius: 3px; text-transform: uppercase; font-weight: 600; }
+.agent-tool-chip .tool-permission.read { background: rgba(16,185,129,0.1); color: #059669; }
+.agent-tool-chip .tool-permission.write { background: rgba(59,130,246,0.1); color: #2563EB; }
+.agent-tool-chip .tool-permission.admin { background: rgba(245,158,11,0.1); color: #D97706; }
+.agent-tool-chip .tool-permission.destructive { background: rgba(239,68,68,0.1); color: #DC2626; }
+
+.agent-welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; gap: 12px; }
+.agent-welcome .welcome-icon { font-size: 64px; }
+.agent-welcome h3 { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+.agent-welcome p { font-size: 14px; color: var(--text-secondary); max-width: 400px; line-height: 1.6; }
+.welcome-suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+.suggestion-chip { padding: 8px 16px; background: var(--glass-bg); border: var(--glass-border); border-radius: var(--radius-lg); cursor: pointer; font-size: 13px; color: var(--text-primary); transition: all 0.2s; backdrop-filter: blur(8px); }
+.suggestion-chip:hover { background: var(--glass-bg-strong); border-color: rgba(139,92,246,0.3); transform: translateY(-1px); }
+
+.tool-calls { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); }
+.tool-call-chip { display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(139,92,246,0.06); border-radius: 6px; font-size: 12px; }
+.tool-call-name { font-weight: 600; color: var(--primary); }
+.tool-call-result { color: var(--text-secondary); }
+
+/* ============================================================
+   MULTI-AGENT PANEL
+   ============================================================ */
+.multi-agent-grid .file-card.active { background: rgba(255,255,255,0.8); }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
 @keyframes typing { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
 
 /* ============================================================
