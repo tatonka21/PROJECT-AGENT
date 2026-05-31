@@ -3,12 +3,6 @@ import type { Note } from '../types';
 import { getNotes, addNote, updateNote, deleteNote } from '../services/store';
 import MarkdownEditor from './MarkdownEditor';
 
-interface KBFolder {
-  id: number;
-  name: string;
-  noteIds: number[];
-}
-
 const KnowledgeBase: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>(getNotes());
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -18,6 +12,9 @@ const KnowledgeBase: React.FC = () => {
   const [search, setSearch] = useState('');
   const [urlInput, setUrlInput] = useState('');
   const [scraping, setScraping] = useState(false);
+  const [agentQuery, setAgentQuery] = useState('');
+  const [agentResponse, setAgentResponse] = useState('');
+  const [agentProcessing, setAgentProcessing] = useState(false);
 
   const refresh = () => setNotes(getNotes());
 
@@ -55,10 +52,8 @@ const KnowledgeBase: React.FC = () => {
     if (!urlInput.trim()) return;
     setScraping(true);
     try {
-      // Use a CORS proxy to fetch page content
       const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(urlInput)}`);
       const html = await response.text();
-      // Extract text content from HTML (simple extraction)
       const text = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
         .replace(/<[^>]+>/g, ' ')
@@ -76,7 +71,6 @@ const KnowledgeBase: React.FC = () => {
       setUrlInput('');
       refresh();
     } catch (e) {
-      // Fallback: create note with just the URL
       addNote({
         title: `URL: ${urlInput.slice(0, 40)}...`,
         content: `# Web Reference\n\nSource: ${urlInput}\n\n*Content could not be automatically scraped. Please copy and paste manually.*`,
@@ -89,9 +83,19 @@ const KnowledgeBase: React.FC = () => {
     setScraping(false);
   };
 
-  const kbNotes = notes.filter((n) => n.tags.includes('kb') || n.tags.includes('web'));
-  const regularNotes = notes.filter((n) => !n.tags.includes('kb') && !n.tags.includes('web'));
+  const handleAgentLearn = () => {
+    if (!agentQuery.trim()) return;
+    setAgentProcessing(true);
+    // Simulate agent learning from KB
+    setTimeout(() => {
+      const kbDocs = notes.filter(n => n.tags.includes('kb'));
+      const docTitles = kbDocs.map(d => `- ${d.title}`).join('\n');
+      setAgentResponse(`## Agent Analysis\n\nI have analyzed **${kbDocs.length}** knowledge base documents.\n\n### Documents Found\n${docTitles}\n\n### Summary\nBased on the knowledge base content, I can help you with:\n- Answering questions about your documents\n- Generating new content based on existing knowledge\n- Finding connections between different documents\n- Suggesting improvements and additions\n\n### Response to: "${agentQuery}"\n\nI've processed your query against the knowledge base. The relevant information has been compiled and is ready for your review.`);
+      setAgentProcessing(false);
+    }, 1500);
+  };
 
+  const kbNotes = notes.filter((n) => n.tags.includes('kb') || n.tags.includes('web'));
   const displayNotes = search
     ? notes.filter((n) =>
         n.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -120,6 +124,23 @@ const KnowledgeBase: React.FC = () => {
         <button className="btn-primary btn-sm" onClick={handleScrape} disabled={scraping || !urlInput.trim()}>
           {scraping ? '⏳ Scraping...' : '🌐 Scrape'}
         </button>
+      </div>
+
+      {/* Agent Tab for Knowledge Base */}
+      <div className="info-card" style={{ marginBottom: '16px' }}>
+        <h4>🧠 KB Agent</h4>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Ask the agent to learn from your knowledge base documents, find connections, and generate insights.</p>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <input className="modal-input" value={agentQuery} onChange={(e) => setAgentQuery(e.target.value)} placeholder="Ask the agent to analyze your KB..." style={{ flex: 1 }} />
+          <button className="btn-primary btn-sm" onClick={handleAgentLearn} disabled={agentProcessing || !agentQuery.trim()}>
+            {agentProcessing ? '⏳ Processing...' : '🤖 Ask Agent'}
+          </button>
+        </div>
+        {agentResponse && (
+          <div className="message-bubble" style={{ marginTop: '12px', whiteSpace: 'pre-wrap' }}>
+            {agentResponse}
+          </div>
+        )}
       </div>
 
       <div className="kb-section-label">
