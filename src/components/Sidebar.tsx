@@ -29,6 +29,8 @@ const navItems = [
   { id: 'account', icon: '👤', label: 'Acct' },
   { id: 'apis', icon: '🔌', label: 'APIs' },
   { id: 'misc', icon: '📌', label: 'Misc' },
+  { id: 'deps', icon: '🔗', label: 'Deps' },
+  { id: 'audit', icon: '📋', label: 'Audit' },
   { id: 'integrations', icon: '🔌', label: 'Integ.' },
   { id: 'base', icon: '⚙️', label: 'Settings' },
 ];
