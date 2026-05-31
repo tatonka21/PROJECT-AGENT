@@ -31,6 +31,8 @@ const navItems = [
   { id: 'misc', icon: '📌', label: 'Misc' },
   { id: 'deps', icon: '🔗', label: 'Deps' },
   { id: 'audit', icon: '📋', label: 'Audit' },
+  { id: 'forecast', icon: '📈', label: 'Forecast' },
+  { id: 'reports', icon: '📄', label: 'Reports' },
   { id: 'integrations', icon: '🔌', label: 'Integ.' },
   { id: 'base', icon: '⚙️', label: 'Settings' },
 ];

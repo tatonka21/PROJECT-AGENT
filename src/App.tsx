@@ -29,6 +29,8 @@ import MiscView from './components/MiscView';
 import IntegrationsView from './components/IntegrationsView';
 import DependenciesView from './components/DependenciesView';
 import AuditView from './components/AuditView';
+import ForecastingView from './components/ForecastingView';
+import ReportsView from './components/ReportsView';
 import AIPanel from './components/AIPanel';
 import NewProjectModal from './components/NewProjectModal';
 import NotificationPanel from './components/NotificationPanel';
@@ -203,6 +205,8 @@ const App: React.FC = () => {
     if (activeView === 'sales') return <ErrorBoundary name="Sales"><SalesView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'leads') return <ErrorBoundary name="Leads"><LeadsView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'deps') return <ErrorBoundary name="Dependencies"><DependenciesView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'forecast') return <ErrorBoundary name="Forecasting"><ForecastingView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'reports') return <ErrorBoundary name="Reports"><ReportsView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'audit') return <ErrorBoundary name="Audit"><AuditView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'integrations') return <ErrorBoundary name="Integrations"><IntegrationsView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'misc') return <ErrorBoundary name="Misc"><MiscView key={refreshKey} /></ErrorBoundary>;
