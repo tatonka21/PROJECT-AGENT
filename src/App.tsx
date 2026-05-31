@@ -30,6 +30,7 @@ import IntegrationsView from './components/IntegrationsView';
 import DependenciesView from './components/DependenciesView';
 import AuditView from './components/AuditView';
 import ForecastingView from './components/ForecastingView';
+import UnifiedCommandCenter from './components/UnifiedCommandCenter';
 import ReportsView from './components/ReportsView';
 import AIPanel from './components/AIPanel';
 import NewProjectModal from './components/NewProjectModal';
@@ -205,6 +206,7 @@ const App: React.FC = () => {
     if (activeView === 'sales') return <ErrorBoundary name="Sales"><SalesView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'leads') return <ErrorBoundary name="Leads"><LeadsView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'deps') return <ErrorBoundary name="Dependencies"><DependenciesView key={refreshKey} /></ErrorBoundary>;
+    if (activeView === 'commandcenter') return <ErrorBoundary name="Command Center"><UnifiedCommandCenter key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'forecast') return <ErrorBoundary name="Forecasting"><ForecastingView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'reports') return <ErrorBoundary name="Reports"><ReportsView key={refreshKey} /></ErrorBoundary>;
     if (activeView === 'audit') return <ErrorBoundary name="Audit"><AuditView key={refreshKey} /></ErrorBoundary>;
