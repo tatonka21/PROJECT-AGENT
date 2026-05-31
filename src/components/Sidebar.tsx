@@ -7,12 +7,12 @@ interface SidebarProps {
 
 const navItems = [
   { id: 'projects', icon: '📁', label: 'Projects' },
+  { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'notes', icon: '📝', label: 'Notes' },
   { id: 'files', icon: '📂', label: 'Files' },
-  { id: 'base', icon: '🏠', label: 'Base' },
-  { id: 'dploy', icon: '🚀', label: 'Deploy' },
-  { id: 'task', icon: '✅', label: 'Task' },
+  { id: 'team', icon: '👥', label: 'Team' },
   { id: 'messaging', icon: '💬', label: 'Messaging' },
+  { id: 'base', icon: '⚙️', label: 'Settings' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) => {
@@ -43,9 +43,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) => {
         ))}
       </nav>
       <div className="sidebar-footer">
-        <button className="sidebar-btn" title="Notifications">
-          <span className="sidebar-icon">🔔</span>
-        </button>
         <div className="sidebar-avatar">
           <span>U</span>
         </div>

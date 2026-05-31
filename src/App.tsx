@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
 import ProjectGrid from './components/ProjectGrid';
 import ProjectHome from './components/ProjectHome';
+import DashboardView from './components/DashboardView';
+import NotesView from './components/NotesView';
+import FilesView from './components/FilesView';
+import TeamView from './components/TeamView';
+import MessagingView from './components/MessagingView';
+import BaseView from './components/BaseView';
 import AIPanel from './components/AIPanel';
+import NewProjectModal from './components/NewProjectModal';
+import NotificationPanel from './components/NotificationPanel';
+import SearchOverlay from './components/SearchOverlay';
 import type { Project } from './types';
-
-const initialProjects: Project[] = [
-  { id: 1, name: 'Website Redesign', description: 'Complete overhaul of the company website with modern UI/UX design principles and improved performance.', status: 'active', progress: 65, tasks: { total: 24, completed: 16 }, dueDate: 'Jun 15', priority: 'high' },
-  { id: 2, name: 'Mobile App v2', description: 'Version 2 of the mobile application with new features including offline mode and push notifications.', status: 'active', progress: 35, tasks: { total: 32, completed: 11 }, dueDate: 'Jul 20', priority: 'high' },
-  { id: 3, name: 'API Integration Hub', description: 'Central API gateway for third-party integrations with authentication and rate limiting.', status: 'on-hold', progress: 80, tasks: { total: 18, completed: 14 }, dueDate: 'May 30', priority: 'medium' },
-  { id: 4, name: 'Data Analytics Dashboard', description: 'Real-time analytics dashboard with custom reporting, charts, and export capabilities.', status: 'in-progress', progress: 20, tasks: { total: 28, completed: 6 }, dueDate: 'Aug 10', priority: 'medium' },
-  { id: 5, name: 'Security Audit Q2', description: 'Quarterly security audit including penetration testing, code review, and compliance checks.', status: 'completed', progress: 100, tasks: { total: 15, completed: 15 }, dueDate: 'May 1', priority: 'high' },
-  { id: 6, name: 'Customer Portal', description: 'Self-service customer portal with ticket management, knowledge base, and live chat.', status: 'active', progress: 45, tasks: { total: 20, completed: 9 }, dueDate: 'Jun 30', priority: 'low' },
-  { id: 7, name: 'DevOps Pipeline', description: 'Automated CI/CD pipeline with Docker containerization and Kubernetes orchestration.', status: 'active', progress: 55, tasks: { total: 14, completed: 8 }, dueDate: 'Jun 5', priority: 'medium' },
-  { id: 8, name: 'E-Commerce Platform', description: 'Full-featured e-commerce platform with payment processing, inventory management, and analytics.', status: 'active', progress: 40, tasks: { total: 36, completed: 14 }, dueDate: 'Aug 20', priority: 'high' },
-];
+import { getProjects, updateProject, addProject, deleteProject, archiveProject, getSettings, updateSettings, getUnreadNotificationCount } from './services/store';
 
 type ViewMode = 'grid' | 'detail';
 
@@ -23,7 +22,46 @@ const App: React.FC = () => {
   const [activeView, setActiveView] = useState('projects');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [projects, setProjects] = useState<Project[]>(getProjects());
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [darkMode, setDarkMode] = useState(getSettings().darkMode);
+  const [unreadCount, setUnreadCount] = useState(getUnreadNotificationCount());
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Apply dark mode
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
+
+  // Refresh data from store
+  const refresh = useCallback(() => {
+    setProjects(getProjects());
+    setUnreadCount(getUnreadNotificationCount());
+    setRefreshKey((k) => k + 1);
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        setShowNewProject(true);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        setShowSearch(true);
+      }
+      if (e.key === 'Escape') {
+        setShowNewProject(false);
+        setShowNotifications(false);
+        setShowSearch(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleSelectProject = (project: Project) => {
     setSelectedProject(project);
@@ -33,51 +71,186 @@ const App: React.FC = () => {
   const handleBackToGrid = () => {
     setViewMode('grid');
     setSelectedProject(null);
+    refresh();
   };
 
   const handleUpdateProject = (updated: Project) => {
-    setProjects((prev) =>
-      prev.map((p) => (p.id === updated.id ? updated : p))
-    );
+    updateProject(updated.id, updated);
     setSelectedProject(updated);
+    refresh();
+  };
+
+  const handleCreateProject = (data: { name: string; description: string; priority: 'high' | 'medium' | 'low'; dueDate: string; status: Project['status'] }) => {
+    addProject({
+      name: data.name,
+      description: data.description,
+      status: data.status,
+      dueDate: data.dueDate,
+      priority: data.priority,
+      tags: [],
+      team: [],
+    });
+    setShowNewProject(false);
+    refresh();
+  };
+
+  const handleDeleteProject = (id: number) => {
+    deleteProject(id);
+    if (selectedProject?.id === id) {
+      setViewMode('grid');
+      setSelectedProject(null);
+    }
+    refresh();
+  };
+
+  const handleArchiveProject = (id: number) => {
+    archiveProject(id);
+    if (selectedProject?.id === id) {
+      setViewMode('grid');
+      setSelectedProject(null);
+    }
+    refresh();
+  };
+
+  const handleToggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    updateSettings({ darkMode: newMode });
+  };
+
+  const handleViewChange = (view: string) => {
+    setActiveView(view);
+    if (view === 'projects') {
+      setViewMode('grid');
+      setSelectedProject(null);
+    }
+    refresh();
+  };
+
+  const renderMainContent = () => {
+    if (activeView === 'projects') {
+      if (viewMode === 'grid') {
+        return (
+          <div className="card-grid-view">
+            <ProjectGrid
+              key={refreshKey}
+              projects={projects}
+              onSelectProject={handleSelectProject}
+              onNewProject={() => setShowNewProject(true)}
+              onDeleteProject={handleDeleteProject}
+              onArchiveProject={handleArchiveProject}
+            />
+            <AIPanel />
+          </div>
+        );
+      }
+      return (
+        <div className="project-home-view">
+          <ProjectHome
+            key={refreshKey}
+            project={selectedProject!}
+            onBack={handleBackToGrid}
+            onUpdateProject={handleUpdateProject}
+            onDeleteProject={() => handleDeleteProject(selectedProject!.id)}
+            onArchiveProject={() => handleArchiveProject(selectedProject!.id)}
+          />
+          <AIPanel />
+        </div>
+      );
+    }
+
+    if (activeView === 'dashboard') return <DashboardView key={refreshKey} projects={projects} />;
+    if (activeView === 'notes') return <NotesView key={refreshKey} />;
+    if (activeView === 'files') return <FilesView key={refreshKey} />;
+    if (activeView === 'team') return <TeamView key={refreshKey} />;
+    if (activeView === 'messaging') return <MessagingView key={refreshKey} />;
+    if (activeView === 'base') return <BaseView key={refreshKey} darkMode={darkMode} onToggleDarkMode={handleToggleDarkMode} />;
+    if (activeView === 'task') {
+      return (
+        <div className="card-grid-view">
+          <ProjectGrid
+            key={refreshKey}
+            projects={projects}
+            onSelectProject={handleSelectProject}
+            onNewProject={() => setShowNewProject(true)}
+            onDeleteProject={handleDeleteProject}
+            onArchiveProject={handleArchiveProject}
+          />
+          <AIPanel />
+        </div>
+      );
+    }
+
+    return (
+      <div className="card-grid-view">
+        <ProjectGrid
+          key={refreshKey}
+          projects={projects}
+          onSelectProject={handleSelectProject}
+          onNewProject={() => setShowNewProject(true)}
+          onDeleteProject={handleDeleteProject}
+          onArchiveProject={handleArchiveProject}
+        />
+        <AIPanel />
+      </div>
+    );
   };
 
   return (
-    <div className="app-container">
-      <Sidebar activeView={activeView} onViewChange={setActiveView} />
+    <div className={`app-container ${darkMode ? 'dark' : ''}`}>
+      <Sidebar activeView={activeView} onViewChange={handleViewChange} />
       <main className="main-content">
         <header className="top-bar">
           <div className="top-bar-left">
-            <h1 className="app-title">Project Hub</h1>
+            <h1 className="app-title">Project Agent</h1>
             <div className="top-bar-nav">
-              <button className={`nav-link ${activeView === 'projects' ? 'active' : ''}`} onClick={() => setActiveView('projects')}>Projects</button>
-              <button className={`nav-link ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveView('dashboard')}>Dashboard</button>
-              <button className={`nav-link ${activeView === 'team' ? 'active' : ''}`} onClick={() => setActiveView('team')}>Team</button>
+              <button className={`nav-link ${activeView === 'projects' ? 'active' : ''}`} onClick={() => handleViewChange('projects')}>Projects</button>
+              <button className={`nav-link ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => handleViewChange('dashboard')}>Dashboard</button>
+              <button className={`nav-link ${activeView === 'team' ? 'active' : ''}`} onClick={() => handleViewChange('team')}>Team</button>
             </div>
           </div>
           <div className="top-bar-right">
-            <div className="search-bar">
+            <div className="search-bar" onClick={() => setShowSearch(true)} style={{ cursor: 'pointer' }}>
               <span className="search-icon">🔍</span>
-              <input type="text" placeholder="Search anything..." />
+              <input type="text" placeholder="Search anything... (Ctrl+F)" readOnly onFocus={() => setShowSearch(true)} />
             </div>
-            <button className="btn-icon" title="Notifications">🔔</button>
+            <button className="btn-icon" title="Notifications" onClick={() => setShowNotifications(!showNotifications)} style={{ position: 'relative' }}>
+              🔔
+              {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+            </button>
             <div className="user-avatar"><span>JD</span></div>
           </div>
         </header>
         <div className="workspace">
-          {viewMode === 'grid' ? (
-            <div className="card-grid-view">
-              <ProjectGrid projects={projects} onSelectProject={handleSelectProject} />
-              <AIPanel />
-            </div>
-          ) : (
-            <div className="project-home-view">
-              <ProjectHome project={selectedProject!} onBack={handleBackToGrid} onUpdateProject={handleUpdateProject} />
-              <AIPanel />
-            </div>
-          )}
+          {renderMainContent()}
         </div>
       </main>
+
+      {showNewProject && (
+        <NewProjectModal
+          onClose={() => setShowNewProject(false)}
+          onCreate={handleCreateProject}
+        />
+      )}
+
+      {showNotifications && (
+        <NotificationPanel
+          onClose={() => setShowNotifications(false)}
+          onRefresh={refresh}
+        />
+      )}
+
+      {showSearch && (
+        <SearchOverlay
+          onClose={() => setShowSearch(false)}
+          onSelectProject={(p) => {
+            setShowSearch(false);
+            setSelectedProject(p);
+            setViewMode('detail');
+            setActiveView('projects');
+          }}
+        />
+      )}
     </div>
   );
 };

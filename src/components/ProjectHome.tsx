@@ -15,6 +15,8 @@ interface ProjectHomeProps {
   project: Project;
   onBack: () => void;
   onUpdateProject: (updated: Project) => void;
+  onDeleteProject?: () => void;
+  onArchiveProject?: () => void;
 }
 
 // --- Floating Dropdown Hook ---
@@ -333,7 +335,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask }) => {
 };
 
 // --- Main ProjectHome Component ---
-const ProjectHome: React.FC<ProjectHomeProps> = ({ project, onBack, onUpdateProject }) => {
+const ProjectHome: React.FC<ProjectHomeProps> = ({ project, onBack, onUpdateProject, onDeleteProject, onArchiveProject }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'team' | 'files'>('overview');
 
   // Editable project fields
@@ -514,9 +516,13 @@ const ProjectHome: React.FC<ProjectHomeProps> = ({ project, onBack, onUpdateProj
 
           {/* Status Dropdown */}
           <div className="dropdown-wrapper" ref={statusRef}>
-            <span
-              className={`project-status status-${project.status} dropdown-trigger`}
-              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+          <div className="project-home-actions">
+            {project.status !== 'archived' && <button className="btn-icon-small" title="Archive" onClick={onArchiveProject}>📦</button>}
+            <button className="btn-icon-small" title="Delete" onClick={onDeleteProject}>🗑️</button>
+          </div>
+          <span
+            className={`project-status status-${project.status} dropdown-trigger`}
+            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
             >
               {getStatusLabel(project.status)} <span className="dropdown-arrow">▾</span>
             </span>
@@ -598,7 +604,7 @@ const ProjectHome: React.FC<ProjectHomeProps> = ({ project, onBack, onUpdateProj
             </div>
           </div>
           <div className="stat-item">
-            <span className="stat-value">{project.tasks.completed}/{project.tasks.total}</span>
+            <span className="stat-value">{project.tasks.filter((t) => t.status === 'done').length}/{project.tasks.length}</span>
             <span className="stat-label">Tasks Done</span>
           </div>
           <div className="stat-item">
